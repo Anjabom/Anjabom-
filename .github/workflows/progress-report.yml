@@ -26,7 +26,7 @@ jobs:
   report:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: actions/github-script@v8
         env:
           PERIOD: ${{ inputs.period || (github.event.schedule == '13 0 1 * *' && 'monthly' || 'weekly') }}
