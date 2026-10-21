@@ -1,0 +1,2 @@
+# arduino-cli 가 사용하는 보드 설정. CI 가 이 값으로 컴파일 검사한다.
+default_fqbn: arduino:avr:uno
