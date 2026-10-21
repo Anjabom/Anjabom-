@@ -1,0 +1,12 @@
+* text=auto eol=lf
+*.sh text eol=lf
+*.png binary
+*.jpg binary
+*.bag binary
+*.db3 binary
+*.mcap binary
+.github/CODEOWNERS linguist-generated
+.github/labeler.yml linguist-generated
+.github/labels.json linguist-generated
+.github/teams.json linguist-generated
+.github/release.yml linguist-generated

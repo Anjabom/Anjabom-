@@ -1,0 +1,37 @@
+{
+  "name": "anjabom ROS2",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "..",
+    "args": { "ROS_DISTRO": "humble" }
+  },
+  "remoteUser": "ubuntu",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/ws,type=bind",
+  "workspaceFolder": "/ws",
+  "containerEnv": {
+    // 같은 네트워크의 다른 팀원과 토픽이 섞이지 않도록 사람마다 다른 값(0~101)을 쓴다.
+    // 호스트에서 export ROS_DOMAIN_ID=<번호> 후 컨테이너를 열면 반영된다.
+    "ROS_DOMAIN_ID": "${localEnv:ROS_DOMAIN_ID:0}"
+  },
+  "runArgs": [
+    "--network=host",
+    "--ipc=host"
+    // 실제 센서/아두이노(USB) 를 쓸 때 아래 두 줄의 주석을 해제 (Linux 호스트)
+    // ,"--privileged"
+    // ,"--volume=/dev:/dev"
+  ],
+  "postCreateCommand": "./scripts/setup.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "charliermarsh.ruff",
+        "ms-vscode.cpptools",
+        "ranch-hand-robotics.rde-pack",
+        "redhat.vscode-yaml",
+        "github.vscode-pull-request-github",
+        "eamodio.gitlens"
+      ]
+    }
+  }
+}

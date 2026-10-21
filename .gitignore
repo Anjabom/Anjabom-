@@ -1,0 +1,27 @@
+# colcon
+build/
+install/
+log/
+
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.venv/
+
+# 데이터 (rosbag 등은 저장소에 올리지 않음 → 공유 드라이브 사용)
+*.bag
+*.db3
+*.mcap
+rosbag2_*/
+
+# IDE / OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+
+# 개인 설정
+.env

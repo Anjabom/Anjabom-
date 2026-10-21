@@ -1,0 +1,10 @@
+# 코드 스타일 설정 (ROS 패키지 빌드와는 무관, ruff 전용)
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["anjabom_bringup", "anjabom_interfaces"]
