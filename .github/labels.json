@@ -98,5 +98,10 @@
     "name": "report:weekly",
     "color": "bfdadc",
     "description": "주간 진행 리포트"
+  },
+  {
+    "name": "report:monthly",
+    "color": "bfdadc",
+    "description": "월간 진행 리포트"
   }
 ]
