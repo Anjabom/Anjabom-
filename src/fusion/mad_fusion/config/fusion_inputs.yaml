@@ -1,0 +1,25 @@
+# 융합 노드가 받는 센서 팀 출력 목록.
+# 각 팀의 출력(토픽/메시지)이 정해질 때마다 리더들이 여기에 추가한다.
+# - 메시지 타입이 커스텀이면 먼저 src/interfaces 에 정의 (인터페이스 변경 요청 이슈)
+# - required: true 인 입력이 모두 timeout_sec 안에 들어와야 융합(fuse)을 실행한다
+# - scripts/record_all.sh 가 이 목록의 토픽을 rosbag 으로 함께 녹화한다
+inputs: []
+# 예시 (센서 팀 출력이 정해지면 주석을 풀고 수정):
+#  - name: lane
+#    team: camera
+#    topic: /camera/lane_info
+#    type: mad_interfaces/msg/LaneInfo
+#    timeout_sec: 0.2
+#    required: true
+#  - name: gps
+#    team: gps
+#    topic: /gps/fix
+#    type: sensor_msgs/msg/NavSatFix
+#    timeout_sec: 0.5
+#    required: true
+#  - name: obstacles
+#    team: lidar
+#    topic: /lidar/obstacles
+#    type: mad_interfaces/msg/ObstacleArray
+#    timeout_sec: 0.2
+#    required: true

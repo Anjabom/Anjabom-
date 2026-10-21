@@ -8,8 +8,9 @@ src/
 ├── gps/           GPS 팀
 ├── lidar/         라이다 팀
 ├── control/       제어 팀
-├── interfaces/    🔌 팀 간 공용 메시지 (anjabom_interfaces) - 리더 승인 필요
-└── bringup/       🚗 전체 통합 런치 + 노드 상태 감시 (anjabom_bringup)
+├── fusion/        🔀 센서 융합·판단 (mad_fusion) - 팀 리더 공동 담당 → docs/INTEGRATION.md
+├── interfaces/    🔌 팀 간 공용 메시지 (mad_interfaces) - 리더 승인 필요
+└── bringup/       🚗 전체 통합 런치 + 노드 상태 감시 (mad_bringup)
 firmware/arduino/  아두이노 스케치 (제어 팀)
 config/teams.yml   팀 구성 (단일 진실 공급원)
 scripts/           개발 도우미 스크립트
@@ -24,9 +25,9 @@ docs/              문서
 팀끼리는 **토픽 이름과 메시지 타입**으로만 연결됩니다. 이 약속이 지켜지면 각 팀은 따로 개발해도 마지막에 문제없이 붙습니다.
 
 ### 규칙
-1. 팀 간에 주고받는 커스텀 메시지는 **반드시** `src/interfaces/anjabom_interfaces/msg/` 에 정의합니다. 팀 패키지 안에 따로 만들지 않습니다.
+1. 팀 간에 주고받는 커스텀 메시지는 **반드시** `src/interfaces/mad_interfaces/msg/` 에 정의합니다. 팀 패키지 안에 따로 만들지 않습니다.
 2. 표준 메시지(`sensor_msgs`, `geometry_msgs`, `nav_msgs`)로 충분하면 표준 메시지를 씁니다.
-3. 토픽 이름, 타입, 발행/구독 팀을 `src/interfaces/anjabom_interfaces/README.md` 의 표에 기록합니다.
+3. 토픽 이름, 타입, 발행/구독 팀을 `src/interfaces/mad_interfaces/README.md` 의 표에 기록합니다.
 4. **하위 호환을 유지합니다.** 필드는 추가만 하고, 삭제·이름 변경·타입 변경은 하지 않습니다. 꼭 필요하면 새 메시지를 만들고 옛 메시지는 나중에 지웁니다.
 
 ### 변경 절차
@@ -36,9 +37,9 @@ docs/              문서
 4. `leads` 팀이 승인하면 병합합니다. 그다음 각 팀이 자기 코드를 맞추는 PR 을 따로 올립니다.
 
 ### 각 노드가 지켜야 할 공통 규칙
-- 1초에 한 번 이상 `/system/status` (`anjabom_interfaces/NodeStatus`) 를 발행합니다. `team` 에는 팀 id 를 넣습니다. `system_monitor` 가 노드가 끊기면 경고합니다.
+- 1초에 한 번 이상 `/system/status` (`mad_interfaces/NodeStatus`) 를 발행합니다. `team` 에는 팀 id 를 넣습니다. `system_monitor` 가 노드가 끊기면 경고합니다.
 - 파라미터는 코드에 하드코딩하지 말고 `config/*.yaml` 과 `declare_parameter` 로 받습니다.
-- 각 팀 패키지에는 `launch/<팀>.launch.py` 를 둡니다. 통합할 준비가 되면 `src/bringup/anjabom_bringup/launch/system.launch.py` 의 `TEAM_LAUNCHES` 에 한 줄을 추가하는 PR 을 올립니다.
+- 각 팀 패키지에는 `launch/<팀>.launch.py` 를 둡니다. 통합할 준비가 되면 `src/bringup/mad_bringup/launch/system.launch.py` 의 `TEAM_LAUNCHES` 에 한 줄을 추가하는 PR 을 올립니다.
 
 ## 버전 관리 (모두가 같은 버전을 쓰는 법)
 
@@ -57,7 +58,7 @@ docs/              문서
 ```bash
 # 특정 버전으로 차량 실행
 git fetch --tags && git switch --detach v0.3.0
-colcon build && ros2 launch anjabom_bringup system.launch.py
+colcon build && ros2 launch mad_bringup system.launch.py
 ```
 
 ## ROS_DOMAIN_ID 배정

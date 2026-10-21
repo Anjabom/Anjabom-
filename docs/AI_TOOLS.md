@@ -29,7 +29,7 @@
 `src/<팀>/AGENTS.md` 의 "팀 규칙" 에 AI 가 자주 틀리는 것을 적습니다. 예:
 ```markdown
 ## 팀 규칙
-- 입력: /camera/image_raw (sensor_msgs/Image, 640x480, 30Hz). 출력: /lane_info (anjabom_interfaces/LaneInfo)
+- 입력: /camera/image_raw (sensor_msgs/Image, 640x480, 30Hz). 출력: /lane_info (mad_interfaces/LaneInfo)
 - 좌표계: 차량 기준 x 전방, y 좌측, 단위 m / rad
 - OpenCV 는 cv_bridge 로 변환. 이미지 처리 루프에서 동적 메모리 할당 금지
 - 파라미터는 config/camera.yaml 에서만 조정
@@ -42,8 +42,8 @@
 ./scripts/ai_tools.sh status            # 설치 상태
 ./scripts/ai_tools.sh install codex     # 특정 도구만 설치/재설치
 ```
-- 일부만 쓰려면 호스트에서 `export ANJABOM_AI_TOOLS="claude"` (없으면 `none`) 후 컨테이너를 다시 만듭니다.
-- **로그인은 컨테이너 터미널에서 한 번만** 합니다. 실행 파일과 로그인 정보는 Docker 볼륨(`anjabom-ai-bin`, `anjabom-ai-config`)에 저장돼서 Rebuild Container 후에도 유지되고, `./scripts/dev.sh` 와도 공유됩니다.
+- 일부만 쓰려면 호스트에서 `export MAD_AI_TOOLS="claude"` (없으면 `none`) 후 컨테이너를 다시 만듭니다.
+- **로그인은 컨테이너 터미널에서 한 번만** 합니다. 실행 파일과 로그인 정보는 Docker 볼륨(`mad-ai-bin`, `mad-ai-config`)에 저장돼서 Rebuild Container 후에도 유지되고, `./scripts/dev.sh` 와도 공유됩니다.
 
 | 도구 | 실행 / 로그인 | API 키로 쓰려면 (호스트에서 export 후 컨테이너 재생성) |
 |---|---|---|

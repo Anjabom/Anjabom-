@@ -1,8 +1,8 @@
 {
   // 기본: 팀 공용 이미지(GHCR)를 받아 사용 → 본체 노트북과 동일한 환경.
   // 이미지 이름은 config/teams.yml 의 org 로부터 scripts/teams.py sync 가 채운다.
-  "name": "anjabom ROS2 (공용 이미지)",
-  "image": "ghcr.io/mad2027/anjabom-dev:humble",
+  "name": "MAD ROS2 (공용 이미지)",
+  "image": "ghcr.io/mad2027/mad-dev:humble",
   "remoteUser": "ubuntu",
   "workspaceMount": "source=${localWorkspaceFolder},target=/ws,type=bind",
   "workspaceFolder": "/ws",
@@ -12,15 +12,15 @@
     // rviz2 등 GUI (우분투 X11 / 윈도우 WSLg)
     "DISPLAY": "${localEnv:DISPLAY}",
     // AI 코딩 도구: 설치할 도구 목록(none 이면 설치 안 함)과, 구독 로그인 대신 API 키를 쓸 때의 키
-    "ANJABOM_AI_TOOLS": "${localEnv:ANJABOM_AI_TOOLS:claude codex grok}",
+    "MAD_AI_TOOLS": "${localEnv:MAD_AI_TOOLS:claude codex grok}",
     "ANTHROPIC_API_KEY": "${localEnv:ANTHROPIC_API_KEY}",
     "OPENAI_API_KEY": "${localEnv:OPENAI_API_KEY}",
     "XAI_API_KEY": "${localEnv:XAI_API_KEY}"
   },
   // AI 도구 실행 파일과 로그인 정보를 볼륨에 보관 → Rebuild Container 후에도 다시 로그인할 필요 없음
   "mounts": [
-    "source=anjabom-ai-bin,target=/home/ubuntu/.local,type=volume",
-    "source=anjabom-ai-config,target=/home/ubuntu/.ai-config,type=volume"
+    "source=mad-ai-bin,target=/home/ubuntu/.local,type=volume",
+    "source=mad-ai-config,target=/home/ubuntu/.ai-config,type=volume"
   ],
   "runArgs": [
     "--network=host",

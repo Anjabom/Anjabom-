@@ -1,16 +1,18 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>anjabom_bringup</name>
+  <name>mad_fusion</name>
   <version>0.1.0</version>
-  <description>전체 시스템 통합 런치 및 노드 상태 감시</description>
-  <maintainer email="maintainers@example.com">maintainers</maintainer>
+  <description>센서 융합과 판단: 카메라/GPS/라이다 팀의 출력을 받아 하나로 합친다 (팀 리더 공동 담당)</description>
+  <maintainer email="leads@example.com">leads</maintainer>
   <license>Apache-2.0</license>
 
   <exec_depend>rclpy</exec_depend>
+  <exec_depend>rosidl_runtime_py</exec_depend>
   <exec_depend>launch</exec_depend>
   <exec_depend>launch_ros</exec_depend>
-  <exec_depend>anjabom_interfaces</exec_depend>
+  <exec_depend>python3-yaml</exec_depend>
+  <exec_depend>mad_interfaces</exec_depend>
 
   <test_depend>python3-pytest</test_depend>
 

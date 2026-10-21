@@ -89,10 +89,13 @@ git push                         # PR → Ready for review
 
 1. 카메라 팀이 `🔌 인터페이스 변경 요청` 이슈를 만듭니다: `LaneInfo.msg` 추가 (offset, curvature).
 2. 제어 팀이 이슈에서 필드를 확인하고 👍 를 남깁니다.
-3. `shared/15-lane-info-msg` 브랜치에서 `src/interfaces/anjabom_interfaces/msg/LaneInfo.msg` 와 `CMakeLists.txt`, README 표만 바꾼 PR 을 올립니다. 모든 팀이 자동으로 멘션되고, `leads` 가 승인하면 병합합니다.
+3. `shared/15-lane-info-msg` 브랜치에서 `src/interfaces/mad_interfaces/msg/LaneInfo.msg` 와 `CMakeLists.txt`, README 표만 바꾼 PR 을 올립니다. 모든 팀이 자동으로 멘션되고, `leads` 가 승인하면 병합합니다.
 4. 이후 카메라 팀(발행)과 제어 팀(구독)이 각자 자기 폴더에서 독립적으로 PR 을 올립니다. 메시지가 먼저 main 에 들어가 있으므로 서로 기다릴 필요가 없습니다.
 
 ## 5. 통합과 차량 실행
+
+> 센서 팀 결과를 융합해 하나의 자율주행 시스템으로 만드는 전체 절차는 [INTEGRATION.md](INTEGRATION.md) 에 있습니다. 새 워크스페이스를 만들지 않고, 같은 워크스페이스의 `src/fusion` 계층에서 합칩니다.
+
 
 | 언제 | 무엇을 | 어떻게 |
 |---|---|---|

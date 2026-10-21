@@ -17,7 +17,7 @@
 
 1. GitHub 우측 상단 프로필 → **Your organizations** → **New organization**
 2. **Free** 플랜 선택
-3. 이름 입력 (예: `anjabom-auto`). 이 이름이 `config/teams.yml` 의 `org` 값이 됩니다.
+3. 이름 입력 (예: `mad2027`). 이 이름이 `config/teams.yml` 의 `org` 값이 됩니다.
 4. "My personal account" 선택 → 생성
 
 > **public / private 선택 기준**
@@ -27,7 +27,7 @@
 
 ## 2. 저장소를 Organization 으로 이전
 
-1. `Anjabom/Anjabom-` → **Settings** → 맨 아래 **Danger Zone** → **Transfer ownership**
+1. (✅ 완료: 옛 개인 저장소 `Anjabom/Anjabom-` → `MAD2027/MAD2027`) 다른 저장소를 옮길 때: 저장소 → **Settings** → 맨 아래 **Danger Zone** → **Transfer ownership**
 2. 새 소유자에 1단계에서 만든 Organization 이름 입력 → 이전
 3. (권장) **Settings → General → Repository name** 에서 이름을 알아보기 쉽게 변경 (예: `autonomous-car`)
    - 이전/이름 변경 후 옛 주소는 자동으로 새 주소로 연결되지만, 팀원은 아래 명령으로 주소를 갱신하세요.
@@ -61,7 +61,7 @@
 > ✅ `MAD2027` 로 이미 반영했습니다 (PR #1). Organization 이름을 바꾸게 되면 아래 절차를 따릅니다.
 
 ```bash
-# config/teams.yml 의 org: CHANGE_ME → 실제 이름 (예: anjabom-auto)
+# config/teams.yml 의 org: CHANGE_ME → 실제 이름 (예: mad2027)
 python3 scripts/teams.py sync      # CODEOWNERS 등 재생성
 git switch -c chore/0-set-org origin/main
 git commit -am "chore: Organization 이름 설정"
@@ -129,7 +129,7 @@ git push -u origin HEAD            # → PR 생성 → 병합
 
 **공용 개발 이미지 만들기** (모든 PC 가 본체와 같은 환경을 쓰기 위한 핵심)
 1. 이 PR 이 병합되면 `공용 개발 이미지` 워크플로가 자동으로 실행됩니다. 실행되지 않았다면 **Actions → 공용 개발 이미지 → Run workflow** 로 직접 실행합니다 (약 15~20분).
-2. 끝나면 Organization → **Packages → anjabom-dev → Package settings** 에서:
+2. 끝나면 Organization → **Packages → mad-dev → Package settings** 에서:
    - **Change visibility → Public**: 팀원이 로그인 없이 받을 수 있습니다. 저장소가 private 이면 Private 로 두고, 팀원은 `docker login ghcr.io` 를 해야 합니다.
    - **Manage Actions access** 에 이 저장소가 Write 로 있는지 확인합니다.
 3. 이후 CI 도 자동으로 이 이미지를 사용합니다.
@@ -147,7 +147,7 @@ git push -u origin HEAD            # → PR 생성 → 병합
 - [ ] main 에 직접 push 하면 거부된다
 - [ ] 테스트 PR 을 올렸을 때 팀 라벨이 붙고, 코드 오너 리뷰가 요청되고, `CI 통과` 체크가 돈다
 - [ ] 새 이슈가 프로젝트 보드에 자동으로 나타난다
-- [ ] `ghcr.io/<org>/anjabom-dev:humble` 이미지가 있고 Public 이다
+- [ ] `ghcr.io/<org>/mad-dev:humble` 이미지가 있고 Public 이다
 - [ ] 본체 노트북에서 `--capture` 한 `config/target_env.yml` 이 main 에 있다
 - [ ] 본체 노트북 러너가 Settings → Actions → Runners 에 `Idle` 로 보인다
 - [ ] 진행 리포트를 수동 실행했을 때 노션 데이터베이스에 행이 생긴다

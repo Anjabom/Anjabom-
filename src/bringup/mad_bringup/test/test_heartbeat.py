@@ -1,4 +1,4 @@
-from anjabom_bringup.heartbeat import HeartbeatTracker
+from mad_bringup.heartbeat import HeartbeatTracker
 
 
 def test_timeout_reported_once():

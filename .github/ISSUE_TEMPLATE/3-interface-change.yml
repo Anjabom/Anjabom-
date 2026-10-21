@@ -18,6 +18,7 @@ body:
         - gps (GPS)
         - lidar (라이다)
         - control (제어)
+        - fusion (융합)
         - shared (공용/여러 팀)
         # END TEAM OPTIONS
     validations:
@@ -29,7 +30,7 @@ body:
       description: 추가/변경/삭제할 메시지와 필드
       render: text
       placeholder: |
-        anjabom_interfaces/msg/LaneInfo.msg
+        mad_interfaces/msg/LaneInfo.msg
         + float32 curvature   # 차선 곡률 [1/m]
     validations:
       required: true

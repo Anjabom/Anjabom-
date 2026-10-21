@@ -89,7 +89,7 @@ jobs:
         name: 공용 개발 이미지 확인
         run: |
           # 팀원들이 쓰는 공용 이미지(GHCR)가 있으면 CI 도 같은 이미지로 검사한다.
-          img="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/anjabom-dev:humble"
+          img="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/mad-dev:humble"
           if docker manifest inspect "$img" >/dev/null 2>&1; then
             echo "image=$img" >> "$GITHUB_OUTPUT"
           else
@@ -189,7 +189,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v5
-      - run: docker build -f .devcontainer/Dockerfile --build-arg ROS_DISTRO="$ROS_DISTRO" -t anjabom-dev .
+      - run: docker build -f .devcontainer/Dockerfile --build-arg ROS_DISTRO="$ROS_DISTRO" -t mad-dev .
 
   # 브랜치 보호 규칙에서 "필수 검사"로 지정할 단일 체크. (건너뛴 job 은 통과로 간주)
   ci-ok:

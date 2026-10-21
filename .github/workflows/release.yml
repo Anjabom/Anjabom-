@@ -57,7 +57,7 @@ jobs:
       - env:
           TAG: ${{ steps.release.outputs.tag }}
         run: |
-          img="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/anjabom-dev"
+          img="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/mad-dev"
           if docker manifest inspect "$img:humble" >/dev/null 2>&1; then
             docker buildx imagetools create -t "$img:humble-$TAG" "$img:humble"
             echo "개발 이미지 고정: $img:humble-$TAG" >> "$GITHUB_STEP_SUMMARY"

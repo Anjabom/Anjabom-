@@ -18,7 +18,7 @@ echo "▶ 통합 실행 ${duration}초 (system.launch.py)"
 # shellcheck disable=SC1091
 source install/setup.bash
 set +e
-timeout --signal=INT "${duration}" ros2 launch anjabom_bringup system.launch.py
+timeout --signal=INT "${duration}" ros2 launch mad_bringup system.launch.py
 rc=$?
 set -e
 # timeout 으로 끝난 것(124)이 정상: 그 전에 죽었다면 실패

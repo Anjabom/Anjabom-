@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>anjabom_interfaces</name>
+  <name>mad_interfaces</name>
   <version>0.1.0</version>
   <description>팀 간 공용 메시지 정의 (팀 간 계약). 변경 절차: docs/TEAM_GUIDE.md</description>
   <maintainer email="maintainers@example.com">maintainers</maintainer>

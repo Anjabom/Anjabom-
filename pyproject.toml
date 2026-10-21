@@ -7,4 +7,4 @@ target-version = "py310"
 select = ["E", "F", "W", "I", "B", "UP"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["anjabom_bringup", "anjabom_interfaces"]
+known-first-party = ["mad_bringup", "mad_fusion", "mad_interfaces"]

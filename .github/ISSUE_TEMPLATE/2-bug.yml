@@ -13,6 +13,7 @@ body:
         - gps (GPS)
         - lidar (라이다)
         - control (제어)
+        - fusion (융합)
         - shared (공용/여러 팀)
         # END TEAM OPTIONS
     validations:
@@ -29,7 +30,7 @@ body:
     attributes:
       label: 재현 방법
       placeholder: |
-        1. ros2 launch anjabom_bringup ...
+        1. ros2 launch mad_bringup ...
         2. ...
     validations:
       required: true

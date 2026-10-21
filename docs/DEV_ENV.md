@@ -64,14 +64,14 @@ code .
 
 ### 6. 컨테이너 열기
 VS Code 우측 하단 알림에서 **Reopen in Container** 를 누르거나, `F1` → `Dev Containers: Reopen in Container` 를 실행합니다.
-- 설정을 고르라고 하면 **anjabom ROS2 (공용 이미지)** 를 선택합니다.
+- 설정을 고르라고 하면 **MAD ROS2 (공용 이미지)** 를 선택합니다.
 - 처음에는 이미지를 내려받은 뒤 `scripts/setup.sh` 가 자동으로 실행되고, 마지막에 본체 환경과 비교한 결과가 출력됩니다.
 
 ### 7. 동작 확인 (컨테이너 터미널)
 ```bash
 colcon build --symlink-install
 source install/setup.bash
-ros2 launch anjabom_bringup system.launch.py      # Ctrl+C 로 종료
+ros2 launch mad_bringup system.launch.py      # Ctrl+C 로 종료
 rviz2                                             # GUI 창이 뜨면 성공 (WSLg)
 ```
 
@@ -124,14 +124,14 @@ code .                                  # → Reopen in Container
 ```bash
 # 1. Docker, git 설치 (우분투 노트북과 동일)
 # 2. 저장소 받기
-git clone https://github.com/<org>/<repo>.git ~/anjabom && cd ~/anjabom
+git clone https://github.com/<org>/<repo>.git ~/mad2027 && cd ~/mad2027
 
 # 3. 기준 환경 기록 (최초 1회, 그리고 본체 구성이 바뀔 때마다) → PR
 ./scripts/dev.sh -- python3 scripts/env_check.py --capture
 
 # 4. 차량 실행 (특정 버전으로)
 git fetch --tags && git switch --detach v0.3.0
-./scripts/dev.sh --hw -- bash -c 'source /opt/ros/humble/setup.bash && colcon build && source install/setup.bash && ros2 launch anjabom_bringup system.launch.py'
+./scripts/dev.sh --hw -- bash -c 'source /opt/ros/humble/setup.bash && colcon build && source install/setup.bash && ros2 launch mad_bringup system.launch.py'
 ```
 이어서 [TARGET_ENV.md - 본체 노트북을 러너로 등록](TARGET_ENV.md#본체-노트북을-러너로-등록-관리자-1회) 을 진행하면 팀원들이 원격으로 실기 테스트를 돌릴 수 있습니다.
 

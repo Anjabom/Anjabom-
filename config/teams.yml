@@ -8,7 +8,7 @@
 # 자세한 절차: docs/TEAM_GUIDE.md "팀 구성 변경하기"
 # ─────────────────────────────────────────────────────────────
 
-# GitHub Organization 이름 (예: anjabom-autonomous). docs/ORG_SETUP.md 참고
+# GitHub Organization 이름 (예: mad2027). docs/ORG_SETUP.md 참고
 org: MAD2027
 
 # 공용 영역(인터페이스, 통합 런치, CI 설정 등)을 책임지는 GitHub 팀 slug
@@ -48,6 +48,15 @@ teams:
     paths:
       - src/control/
       - firmware/
+
+  # 센서 융합 + 판단: 각 센서 팀의 출력을 받아 하나로 합친다. 팀 리더들이 함께 맡는다.
+  - id: fusion
+    name: 융합
+    description: 센서 융합과 판단 (카메라·GPS·라이다 출력을 합쳐 자율주행 상황 판단) - 팀 리더 공동 담당
+    github_team: leads
+    color: "fbca04"
+    paths:
+      - src/fusion/
 
 # 여러 팀이 함께 쓰는 공용 영역. 변경 시 모든 팀에 알림이 간다.
 shared:

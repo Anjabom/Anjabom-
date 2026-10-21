@@ -25,6 +25,12 @@
               - "src/control/**"
               - "firmware/**"
       - head-branch: ["^control/"]
+"team:fusion":
+  - any:
+      - changed-files:
+          - any-glob-to-any-file:
+              - "src/fusion/**"
+      - head-branch: ["^fusion/"]
 "area:shared":
   - changed-files:
       - any-glob-to-any-file:
