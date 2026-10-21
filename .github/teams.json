@@ -38,6 +38,15 @@
         "src/control/",
         "firmware/"
       ]
+    },
+    {
+      "id": "fusion",
+      "name": "융합",
+      "label": "team:fusion",
+      "handle": "@MAD2027/leads",
+      "paths": [
+        "src/fusion/"
+      ]
     }
   ],
   "shared": [

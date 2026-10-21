@@ -26,6 +26,7 @@ ROS2 Humble (Ubuntu 22.04) + Python/C++ + Arduino 기반 자율주행 프로젝�
 | **노션 기록** | [docs/NOTION.md](docs/NOTION.md) |
 | **AI 도구 사용자** | [docs/AI_TOOLS.md](docs/AI_TOOLS.md) - Claude Code · Codex · Grok 공용 규칙(`AGENTS.md`), 컨테이너 안 실행 |
 | **팀 리더** | [docs/TEAM_GUIDE.md](docs/TEAM_GUIDE.md) - 인터페이스 변경, 팀 구성 변경, 릴리스 |
+| **팀 리더 (융합 공동 담당)** | [docs/INTEGRATION.md](docs/INTEGRATION.md) - 센서 팀 출력 융합과 최종 통합 절차 |
 
 ### 하루 작업 흐름 요약
 
@@ -42,6 +43,7 @@ git push -u origin HEAD                         # 6. PR 생성 (본문에 Closes
 
 ```
 src/camera|gps|lidar|control/   팀별 ROS2 패키지
+src/fusion/                     센서 융합·판단 (anjabom_fusion, 팀 리더 공동)
 src/interfaces/                 팀 간 공용 메시지 (anjabom_interfaces)
 src/bringup/                    통합 런치 + 노드 상태 감시 (anjabom_bringup)
 firmware/arduino/               아두이노 스케치

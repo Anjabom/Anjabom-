@@ -16,6 +16,7 @@ __pycache__/
 *.db3
 *.mcap
 rosbag2_*/
+bags/
 
 # IDE / OS
 .vscode/*

@@ -20,6 +20,11 @@
     "description": "제어 팀 - 판단/제어 및 아두이노 펌웨어"
   },
   {
+    "name": "team:fusion",
+    "color": "fbca04",
+    "description": "융합 팀 - 센서 융합과 판단 (카메라·GPS·라이다 출력을 합쳐 자율주행 상황 판단) - 팀 리더 공동 담당"
+  },
+  {
     "name": "type:feature",
     "color": "a2eeef",
     "description": "새 기능"

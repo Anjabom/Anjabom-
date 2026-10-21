@@ -11,5 +11,7 @@ changelog:
       labels: [team:lidar]
     - title: 제어 팀
       labels: [team:control]
+    - title: 융합 팀
+      labels: [team:fusion]
     - title: 기타
       labels: ['*']

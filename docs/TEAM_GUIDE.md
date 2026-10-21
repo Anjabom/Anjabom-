@@ -8,6 +8,7 @@ src/
 ├── gps/           GPS 팀
 ├── lidar/         라이다 팀
 ├── control/       제어 팀
+├── fusion/        🔀 센서 융합·판단 (anjabom_fusion) - 팀 리더 공동 담당 → docs/INTEGRATION.md
 ├── interfaces/    🔌 팀 간 공용 메시지 (anjabom_interfaces) - 리더 승인 필요
 └── bringup/       🚗 전체 통합 런치 + 노드 상태 감시 (anjabom_bringup)
 firmware/arduino/  아두이노 스케치 (제어 팀)

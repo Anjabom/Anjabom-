@@ -16,6 +16,7 @@
 | `gps` | GPS | `src/gps/` | GPS/IMU 기반 측위 및 경로 |
 | `lidar` | 라이다 | `src/lidar/` | 라이다 기반 인지 (장애물/거리) |
 | `control` | 제어 | `src/control/`, `firmware/` | 판단/제어 및 아두이노 펌웨어 |
+| `fusion` | 융합 | `src/fusion/` | 센서 융합과 판단 (카메라·GPS·라이다 출력을 합쳐 자율주행 상황 판단) - 팀 리더 공동 담당 |
 <!-- END TEAMS -->
 
 공용 영역: `src/interfaces/`(팀 간 메시지 계약), `src/bringup/`(통합 런치), `config/`, `.github/`, `.devcontainer/`
@@ -30,6 +31,8 @@
 7. **의존성 추가**: apt/ROS 패키지는 해당 패키지의 `package.xml`, pip 는 `requirements.txt` 에 `이름==버전` 으로. `apt install`/`pip install` 을 직접 실행해 해결하고 끝내지 않는다.
 8. 하드코딩 대신 ROS 파라미터(`declare_parameter`)와 `config/*.yaml` 을 쓴다. 각 노드는 `/system/status` 에 `anjabom_interfaces/NodeStatus` 하트비트를 1Hz 이상 발행한다.
 9. 테스트를 지우거나 건너뛰게 만들어서 통과시키지 않는다.
+10. **좌표계와 시간 규칙 (융합 전제)**: TF 프레임은 `map` → `odom` → `base_link` → 센서(`camera_link`, `gps_link`, `lidar_link`, `imu_link`), 단위는 SI(m, rad, s). 모든 메시지의 `header.frame_id` 를 채우고 `header.stamp` 는 **센서 측정 시각**을 넣는다(발행 시각 아님). rosbag 재생 시 `use_sim_time:=true`.
+11. 다른 팀에 보내는 출력(토픽/메시지)이 새로 생기거나 바뀌면 `src/fusion/anjabom_fusion/config/fusion_inputs.yaml` 에 반영이 필요하다고 PR 에 적는다 (융합은 팀 리더 공동 담당).
 
 ## 빌드 / 테스트 (컨테이너 안)
 ```bash

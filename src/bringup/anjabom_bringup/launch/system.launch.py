@@ -15,6 +15,7 @@ from launch_ros.actions import Node
 
 # (패키지 이름, launch 파일 이름)
 TEAM_LAUNCHES = [
+    ("anjabom_fusion", "fusion.launch.py"),  # 센서 융합 (팀 리더 공동)
     # ("camera_lane", "camera.launch.py"),
     # ("gps_localization", "gps.launch.py"),
     # ("lidar_obstacle", "lidar.launch.py"),

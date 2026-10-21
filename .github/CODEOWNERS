@@ -10,6 +10,7 @@
 /src/lidar/ @MAD2027/team-lidar
 /src/control/ @MAD2027/team-control
 /firmware/ @MAD2027/team-control
+/src/fusion/ @MAD2027/leads
 
 # 공용 영역
 /src/interfaces/ @MAD2027/leads
