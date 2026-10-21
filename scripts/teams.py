@@ -199,7 +199,7 @@ DEV_IMAGE_RE = re.compile(r'"image": "ghcr\.io/[^"]*"')
 
 def dev_image(cfg: dict) -> str:
     """GHCR 이미지 이름 (.github/workflows/dev-image.yml 이 올리는 이름과 같아야 함)."""
-    return f"ghcr.io/{cfg['org'].lower()}/anjabom-dev:humble"
+    return f"ghcr.io/{cfg['org'].lower()}/mad-dev:humble"
 
 
 # ── AI 코딩 도구 지침 (AGENTS.md / CLAUDE.md) ─────────────────

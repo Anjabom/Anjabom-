@@ -1,6 +1,6 @@
 {
   // 이미지(Dockerfile)를 수정·테스트할 때만 사용. 평소에는 기본 설정(공용 이미지)을 쓴다.
-  "name": "anjabom ROS2 (로컬 빌드 - 관리자용)",
+  "name": "MAD ROS2 (로컬 빌드 - 관리자용)",
   "build": {
     "dockerfile": "../Dockerfile",
     "context": "../..",

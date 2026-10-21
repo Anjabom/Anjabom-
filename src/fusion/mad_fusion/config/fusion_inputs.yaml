@@ -8,7 +8,7 @@ inputs: []
 #  - name: lane
 #    team: camera
 #    topic: /camera/lane_info
-#    type: anjabom_interfaces/msg/LaneInfo
+#    type: mad_interfaces/msg/LaneInfo
 #    timeout_sec: 0.2
 #    required: true
 #  - name: gps
@@ -20,6 +20,6 @@ inputs: []
 #  - name: obstacles
 #    team: lidar
 #    topic: /lidar/obstacles
-#    type: anjabom_interfaces/msg/ObstacleArray
+#    type: mad_interfaces/msg/ObstacleArray
 #    timeout_sec: 0.2
 #    required: true

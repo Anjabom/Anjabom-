@@ -15,7 +15,7 @@ from launch_ros.actions import Node
 
 # (패키지 이름, launch 파일 이름)
 TEAM_LAUNCHES = [
-    ("anjabom_fusion", "fusion.launch.py"),  # 센서 융합 (팀 리더 공동)
+    ("mad_fusion", "fusion.launch.py"),  # 센서 융합 (팀 리더 공동)
     # ("camera_lane", "camera.launch.py"),
     # ("gps_localization", "gps.launch.py"),
     # ("lidar_obstacle", "lidar.launch.py"),
@@ -24,8 +24,8 @@ TEAM_LAUNCHES = [
 
 
 def generate_launch_description() -> LaunchDescription:
-    config = os.path.join(get_package_share_directory("anjabom_bringup"), "config", "system.yaml")
-    actions = [Node(package="anjabom_bringup", executable="system_monitor", parameters=[config], output="screen")]
+    config = os.path.join(get_package_share_directory("mad_bringup"), "config", "system.yaml")
+    actions = [Node(package="mad_bringup", executable="system_monitor", parameters=[config], output="screen")]
     for package, launch_file in TEAM_LAUNCHES:
         try:
             share = get_package_share_directory(package)

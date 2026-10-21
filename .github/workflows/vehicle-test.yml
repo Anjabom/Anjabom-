@@ -25,7 +25,7 @@ jobs:
     runs-on: [self-hosted, linux, vehicle]
     timeout-minutes: 40
     env:
-      DEV_NAME: anjabom-ci-${{ github.run_id }}
+      DEV_NAME: mad-ci-${{ github.run_id }}
       DURATION: ${{ inputs.duration }}
     steps:
       - uses: actions/checkout@v5

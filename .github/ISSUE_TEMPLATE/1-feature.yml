@@ -42,7 +42,7 @@ body:
     attributes:
       label: 사용/변경하는 인터페이스 (토픽·메시지)
       description: 다른 팀과 주고받는 토픽, 메시지 타입. 메시지 정의 변경이 필요하면 "인터페이스 변경" 이슈를 따로 만드세요.
-      placeholder: "구독: /camera/image_raw (sensor_msgs/Image) / 발행: /lane_info (anjabom_interfaces/LaneInfo)"
+      placeholder: "구독: /camera/image_raw (sensor_msgs/Image) / 발행: /lane_info (mad_interfaces/LaneInfo)"
   - type: dropdown
     id: size
     attributes:

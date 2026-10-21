@@ -4,7 +4,7 @@
 #
 #   ./scripts/record_all.sh [이름]        예) ./scripts/record_all.sh drive_school_loop
 #
-# 녹화 토픽: src/fusion/anjabom_fusion/config/fusion_inputs.yaml 의 입력 + /tf /tf_static /system/status
+# 녹화 토픽: src/fusion/mad_fusion/config/fusion_inputs.yaml 의 입력 + /tf /tf_static /system/status
 #           + 환경 변수 EXTRA_TOPICS (공백 구분, 예: "/camera/image_raw /scan")
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -12,7 +12,7 @@ cd "$(dirname "$0")/.."
 name=${1:-drive}_$(date +%Y%m%d_%H%M%S)
 mapfile -t topics < <(python3 - <<'PY'
 import yaml
-data = yaml.safe_load(open("src/fusion/anjabom_fusion/config/fusion_inputs.yaml", encoding="utf-8")) or {}
+data = yaml.safe_load(open("src/fusion/mad_fusion/config/fusion_inputs.yaml", encoding="utf-8")) or {}
 for item in data.get("inputs") or []:
     print(item["topic"])
 PY

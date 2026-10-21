@@ -6,20 +6,20 @@
 #   ./scripts/dev.sh --hw            + 센서/아두이노(USB) 접근
 #   ./scripts/dev.sh --match-target  + CPU/RAM 을 본체 노트북 사양으로 제한
 #   ./scripts/dev.sh --pull          최신 공용 이미지 받기
-#   ./scripts/dev.sh -- <명령>       명령만 실행 (예: -- ros2 launch anjabom_bringup system.launch.py)
+#   ./scripts/dev.sh -- <명령>       명령만 실행 (예: -- ros2 launch mad_bringup system.launch.py)
 #   ./scripts/dev.sh -- claude       AI 도구를 컨테이너 안에서 실행 (처음 한 번: -- ./scripts/ai_tools.sh install)
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
 image=$(sed -n 's/^[[:space:]]*"image": "\(.*\)",*$/\1/p' .devcontainer/devcontainer.json)
-name="${DEV_NAME:-anjabom-dev-${USER:-dev}}"
+name="${DEV_NAME:-mad-dev-${USER:-dev}}"
 tty=(-i); [ -t 0 ] && tty=(-it)   # CI 처럼 터미널이 없으면 -t 제외
 args=(--rm "${tty[@]}" --name "$name" --network host --ipc host
       -v "$PWD:/ws" -w /ws
       -e "ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}" -e "DISPLAY=${DISPLAY:-}"
       -v /tmp/.X11-unix:/tmp/.X11-unix
       # AI 코딩 도구 (devcontainer 와 같은 볼륨 → 한 번 로그인하면 공유)
-      -v anjabom-ai-bin:/home/ubuntu/.local -v anjabom-ai-config:/home/ubuntu/.ai-config
+      -v mad-ai-bin:/home/ubuntu/.local -v mad-ai-config:/home/ubuntu/.ai-config
       -e ANTHROPIC_API_KEY -e OPENAI_API_KEY -e XAI_API_KEY)
 cmd=(bash)
 

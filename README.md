@@ -1,4 +1,4 @@
-# Anjabom 자율주행
+# MAD 자율주행
 
 ROS2 Humble (Ubuntu 22.04) + Python/C++ + Arduino 기반 자율주행 프로젝트입니다.
 카메라 · GPS · 라이다 · 제어 4개 팀(팀당 약 4명)이 **하나의 저장소**에서 함께 개발합니다.
@@ -43,9 +43,9 @@ git push -u origin HEAD                         # 6. PR 생성 (본문에 Closes
 
 ```
 src/camera|gps|lidar|control/   팀별 ROS2 패키지
-src/fusion/                     센서 융합·판단 (anjabom_fusion, 팀 리더 공동)
-src/interfaces/                 팀 간 공용 메시지 (anjabom_interfaces)
-src/bringup/                    통합 런치 + 노드 상태 감시 (anjabom_bringup)
+src/fusion/                     센서 융합·판단 (mad_fusion, 팀 리더 공동)
+src/interfaces/                 팀 간 공용 메시지 (mad_interfaces)
+src/bringup/                    통합 런치 + 노드 상태 감시 (mad_bringup)
 firmware/arduino/               아두이노 스케치
 config/teams.yml                팀 구성 (여기만 고치면 CODEOWNERS/라벨/템플릿 자동 갱신)
 config/target_env.yml           본체 노트북 기준 환경 (env_check.py --capture)
@@ -60,5 +60,5 @@ scripts/                        개발 도우미
 ```bash
 # 공용 컨테이너 안에서
 colcon build --symlink-install && source install/setup.bash
-ros2 launch anjabom_bringup system.launch.py
+ros2 launch mad_bringup system.launch.py
 ```

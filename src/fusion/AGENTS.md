@@ -8,9 +8,9 @@
 - 브랜치: `fusion/<이슈번호>-<설명>`
 
 ## 구조
-- 입력 목록: `anjabom_fusion/config/fusion_inputs.yaml` - 센서 팀 출력(토픽/타입/허용 지연/필수 여부). 센서 팀 출력이 정해질 때마다 여기에 추가한다.
-- 노드: `anjabom_fusion/fusion_node.py` - 입력을 모두 구독하고, 필수 입력이 신선할 때 `fuse()` 를 `rate_hz` 주기로 호출. 융합 로직은 `fuse()` 와 별도 모듈에 작성한다.
-- 순수 로직(시간 동기화, 좌표 변환 계산, 판단)은 ROS 의존 없는 모듈로 분리해 단위 테스트한다 (`anjabom_fusion/inputs.py` 참고).
+- 입력 목록: `mad_fusion/config/fusion_inputs.yaml` - 센서 팀 출력(토픽/타입/허용 지연/필수 여부). 센서 팀 출력이 정해질 때마다 여기에 추가한다.
+- 노드: `mad_fusion/fusion_node.py` - 입력을 모두 구독하고, 필수 입력이 신선할 때 `fuse()` 를 `rate_hz` 주기로 호출. 융합 로직은 `fuse()` 와 별도 모듈에 작성한다.
+- 순수 로직(시간 동기화, 좌표 변환 계산, 판단)은 ROS 의존 없는 모듈로 분리해 단위 테스트한다 (`mad_fusion/inputs.py` 참고).
 
 ## 융합 규칙
 - 센서 팀 코드를 융합 폴더에 복사하지 않는다. **토픽으로만** 받는다. 필요한 출력이 없으면 해당 팀에 이슈를 연다.

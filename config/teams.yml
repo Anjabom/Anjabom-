@@ -8,7 +8,7 @@
 # 자세한 절차: docs/TEAM_GUIDE.md "팀 구성 변경하기"
 # ─────────────────────────────────────────────────────────────
 
-# GitHub Organization 이름 (예: anjabom-autonomous). docs/ORG_SETUP.md 참고
+# GitHub Organization 이름 (예: mad2027). docs/ORG_SETUP.md 참고
 org: MAD2027
 
 # 공용 영역(인터페이스, 통합 런치, CI 설정 등)을 책임지는 GitHub 팀 slug

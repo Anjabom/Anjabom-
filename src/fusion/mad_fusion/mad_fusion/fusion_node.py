@@ -12,14 +12,14 @@ from ament_index_python.packages import get_package_share_directory
 from rclpy.node import Node
 from rosidl_runtime_py.utilities import get_message
 
-from anjabom_fusion.inputs import InputTracker, load_inputs
-from anjabom_interfaces.msg import NodeStatus
+from mad_fusion.inputs import InputTracker, load_inputs
+from mad_interfaces.msg import NodeStatus
 
 
 class FusionNode(Node):
     def __init__(self) -> None:
         super().__init__("fusion_node")
-        default_inputs = os.path.join(get_package_share_directory("anjabom_fusion"), "config", "fusion_inputs.yaml")
+        default_inputs = os.path.join(get_package_share_directory("mad_fusion"), "config", "fusion_inputs.yaml")
         inputs_file = self.declare_parameter("inputs_file", default_inputs).value
         rate_hz = self.declare_parameter("rate_hz", 20.0).value
 

@@ -13,8 +13,8 @@ if ! python3 scripts/teams.py list | grep -qx "$team"; then
 fi
 
 case "$lang" in
-  python) build_type=ament_python; deps=(rclpy anjabom_interfaces) ;;
-  cpp)    build_type=ament_cmake;  deps=(rclcpp anjabom_interfaces) ;;
+  python) build_type=ament_python; deps=(rclpy mad_interfaces) ;;
+  cpp)    build_type=ament_cmake;  deps=(rclcpp mad_interfaces) ;;
   *) echo "언어는 python 또는 cpp"; exit 1 ;;
 esac
 

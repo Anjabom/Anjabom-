@@ -2,7 +2,7 @@ from glob import glob
 
 from setuptools import find_packages, setup
 
-package_name = "anjabom_fusion"
+package_name = "mad_bringup"
 
 setup(
     name=package_name,
@@ -16,14 +16,14 @@ setup(
     ],
     install_requires=["setuptools"],
     zip_safe=True,
-    maintainer="leads",
-    maintainer_email="leads@example.com",
-    description="센서 융합과 판단",
+    maintainer="maintainers",
+    maintainer_email="maintainers@example.com",
+    description="전체 시스템 통합 런치 및 노드 상태 감시",
     license="Apache-2.0",
     tests_require=["pytest"],
     entry_points={
         "console_scripts": [
-            "fusion_node = anjabom_fusion.fusion_node:main",
+            "system_monitor = mad_bringup.system_monitor:main",
         ],
     },
 )

@@ -2,7 +2,7 @@
 # 공용 개발 컨테이너 안에 AI 코딩 도구(Claude Code, Codex, Grok Build)를 설치/확인한다.
 # AI 가 실행하는 빌드·테스트도 컨테이너(=본체 기준 환경) 안에서 돌게 하기 위함.
 #
-#   ./scripts/ai_tools.sh install [도구...]   설치 (이미 있으면 건너뜀). 기본: $ANJABOM_AI_TOOLS 또는 전부
+#   ./scripts/ai_tools.sh install [도구...]   설치 (이미 있으면 건너뜀). 기본: $MAD_AI_TOOLS 또는 전부
 #   ./scripts/ai_tools.sh status              설치/로그인 상태
 #
 # 실행 파일(~/.local)과 로그인 정보(~/.ai-config)는 Docker 볼륨에 있어 컨테이너를 다시 만들어도 유지된다.
@@ -67,8 +67,8 @@ case "${1:-status}" in
   install)
     shift
     prepare_dirs
-    tools="${*:-${ANJABOM_AI_TOOLS:-$ALL_TOOLS}}"
-    [ "$tools" = none ] && { echo "AI 도구 설치 건너뜀 (ANJABOM_AI_TOOLS=none)"; exit 0; }
+    tools="${*:-${MAD_AI_TOOLS:-$ALL_TOOLS}}"
+    [ "$tools" = none ] && { echo "AI 도구 설치 건너뜀 (MAD_AI_TOOLS=none)"; exit 0; }
     rc=0
     for name in $tools; do
       if [ -z "${INSTALL_URL[$name]:-}" ]; then echo "알 수 없는 도구: $name ($ALL_TOOLS)"; rc=1; continue; fi

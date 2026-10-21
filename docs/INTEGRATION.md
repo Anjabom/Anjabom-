@@ -43,13 +43,13 @@ git push -u origin HEAD            # → PR → 카메라 팀 리뷰 → 병합
 | 새 메시지가 필요한 출력 (예: 차선 정보, 장애물 목록) | 센서 팀 → 리더 | `🔌 인터페이스 변경 요청` 이슈 → `src/interfaces` 에 메시지 정의 → `fusion_inputs.yaml` 에 추가 |
 | 센서 장착 위치 | 리더 | 통합 런치에 static TF 로 정의 (`base_link` → `camera_link` 등) |
 
-`src/fusion/anjabom_fusion/config/fusion_inputs.yaml` 예:
+`src/fusion/mad_fusion/config/fusion_inputs.yaml` 예:
 ```yaml
 inputs:
   - name: lane
     team: camera
     topic: /camera/lane_info
-    type: anjabom_interfaces/msg/LaneInfo
+    type: mad_interfaces/msg/LaneInfo
     timeout_sec: 0.2     # 이보다 오래되면 "끊김"
     required: true       # 이 입력 없이는 융합하지 않음
 ```
@@ -59,7 +59,7 @@ inputs:
 센서를 단 본체에서 모든 팀 출력을 **동시에** 녹화합니다. 융합 개발과 테스트의 기준 데이터가 됩니다.
 ```bash
 ./scripts/dev.sh --hw
-ros2 launch anjabom_bringup system.launch.py        # (다른 터미널) 각 팀 노드 실행
+ros2 launch mad_bringup system.launch.py        # (다른 터미널) 각 팀 노드 실행
 ./scripts/record_all.sh school_loop                 # fusion_inputs.yaml 의 토픽 + /tf 녹화
 ```
 녹화 파일(`bags/`)은 git 에 올리지 않고 팀 공유 드라이브에 올립니다.
@@ -68,7 +68,7 @@ ros2 launch anjabom_bringup system.launch.py        # (다른 터미널) 각 팀
 ```bash
 ./scripts/start_task.sh fusion <이슈번호> lane-obstacle-merge
 ros2 bag play bags/school_loop_... --clock --loop     # 녹화 데이터 재생
-ros2 launch anjabom_fusion fusion.launch.py use_sim_time:=true
+ros2 launch mad_fusion fusion.launch.py use_sim_time:=true
 ```
 - 융합 로직은 `fusion_node.py` 의 `fuse()` 에서 시작해 별도 모듈로 키웁니다. 순수 계산은 ROS 없이 단위 테스트합니다.
 - 융합 결과 메시지를 `src/interfaces` 에 정의하면 제어 팀이 그 토픽을 받아 개발합니다.
@@ -76,14 +76,14 @@ ros2 launch anjabom_fusion fusion.launch.py use_sim_time:=true
 ### 4단계. 최종 통합 (마일스톤)
 각 팀 기능이 준비되면 통합 런치에 넣고, 본체에서 확인한 뒤 버전을 고정합니다.
 
-1. 각 팀이 자기 패키지에 `launch/<팀>.launch.py` 를 두고, `src/bringup/anjabom_bringup/launch/system.launch.py` 의 `TEAM_LAUNCHES` 에 한 줄 추가하는 PR 을 올립니다. (`anjabom_fusion` 은 이미 들어 있음)
+1. 각 팀이 자기 패키지에 `launch/<팀>.launch.py` 를 두고, `src/bringup/mad_bringup/launch/system.launch.py` 의 `TEAM_LAUNCHES` 에 한 줄 추가하는 PR 을 올립니다. (`mad_fusion` 은 이미 들어 있음)
 2. 리더가 센서 위치 static TF 를 통합 런치에 넣습니다.
 3. **Actions → 본체 노트북 실기 테스트** 를 main 으로 실행합니다 (전체 빌드 → 테스트 → 통합 실행).
 4. 아래 체크리스트를 확인합니다.
 5. **Actions → 버전 릴리스** 로 `v0.x.0` 을 만듭니다. 이 태그가 "이 날짜에 융합까지 확인된 버전" 입니다. 시연·대회에는 태그 버전을 씁니다.
 
 #### 통합 체크리스트
-- [ ] `ros2 launch anjabom_bringup system.launch.py` 로 모든 팀 노드가 한 번에 뜬다
+- [ ] `ros2 launch mad_bringup system.launch.py` 로 모든 팀 노드가 한 번에 뜬다
 - [ ] `system_monitor` 에 하트비트 끊김/ERROR 가 없다
 - [ ] `fusion_node` 상태가 "모든 입력 수신 중" 이다 (`ros2 topic echo /system/status`)
 - [ ] `ros2 run tf2_tools view_frames` 의 TF 트리가 `map → odom → base_link → 센서` 로 이어진다

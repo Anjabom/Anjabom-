@@ -6,7 +6,7 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description() -> LaunchDescription:
-    config = os.path.join(get_package_share_directory("anjabom_fusion"), "config", "fusion.yaml")
+    config = os.path.join(get_package_share_directory("mad_fusion"), "config", "fusion.yaml")
     return LaunchDescription(
-        [Node(package="anjabom_fusion", executable="fusion_node", parameters=[config], output="screen")]
+        [Node(package="mad_fusion", executable="fusion_node", parameters=[config], output="screen")]
     )

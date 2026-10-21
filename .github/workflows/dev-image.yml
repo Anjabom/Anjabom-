@@ -29,7 +29,7 @@ jobs:
       - uses: actions/checkout@v5
       - id: meta
         run: |
-          image="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/anjabom-dev"
+          image="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/mad-dev"
           echo "image=$image" >> "$GITHUB_OUTPUT"
           echo "stamp=humble-$(date -u +%Y%m%d)-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
           pip install -q pyyaml==6.0.2
@@ -53,7 +53,7 @@ jobs:
             ${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.stamp }}
           labels: |
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
-            org.opencontainers.image.description=anjabom ROS2 Humble 공용 개발 환경
+            org.opencontainers.image.description=MAD ROS2 Humble 공용 개발 환경
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - run: |

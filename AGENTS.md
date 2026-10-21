@@ -26,13 +26,13 @@
 2. **명령은 공용 개발 컨테이너 안에서 실행한다** (`/ws` 가 저장소 루트). 윈도우 PowerShell 등 호스트에서 빌드/테스트를 돌리지 않는다. 컨테이너 밖이라면 사용자에게 알린다.
 3. **요청받은 팀 폴더 안에서만 수정한다.** 다른 팀 폴더, `src/interfaces/`, `src/bringup/`, `.github/`, `.devcontainer/`, `requirements*.txt` 는 사용자가 명시적으로 요청한 경우에만 바꾼다.
 4. **자동 생성 파일은 직접 고치지 않는다**: `.github/CODEOWNERS`, `.github/labeler.yml`, `.github/labels.json`, `.github/teams.json`, `.github/release.yml`, 각 폴더의 `CLAUDE.md`, 이 파일의 팀 표. → `config/teams.yml` 수정 후 `python3 scripts/teams.py sync`.
-5. **팀 간 메시지는 `src/interfaces/anjabom_interfaces/msg/` 에만 정의**하고, 기존 필드는 삭제/이름변경/타입변경하지 않는다(추가만). 바꿔야 하면 코드를 고치기 전에 사용자에게 "인터페이스 변경 요청 이슈" 가 필요하다고 알린다.
+5. **팀 간 메시지는 `src/interfaces/mad_interfaces/msg/` 에만 정의**하고, 기존 필드는 삭제/이름변경/타입변경하지 않는다(추가만). 바꿔야 하면 코드를 고치기 전에 사용자에게 "인터페이스 변경 요청 이슈" 가 필요하다고 알린다.
 6. **비밀값 금지**: API 키, 토큰, 비밀번호를 코드·설정·로그·커밋 메시지에 쓰지 않는다. 환경 변수로 받는다.
 7. **의존성 추가**: apt/ROS 패키지는 해당 패키지의 `package.xml`, pip 는 `requirements.txt` 에 `이름==버전` 으로. `apt install`/`pip install` 을 직접 실행해 해결하고 끝내지 않는다.
-8. 하드코딩 대신 ROS 파라미터(`declare_parameter`)와 `config/*.yaml` 을 쓴다. 각 노드는 `/system/status` 에 `anjabom_interfaces/NodeStatus` 하트비트를 1Hz 이상 발행한다.
+8. 하드코딩 대신 ROS 파라미터(`declare_parameter`)와 `config/*.yaml` 을 쓴다. 각 노드는 `/system/status` 에 `mad_interfaces/NodeStatus` 하트비트를 1Hz 이상 발행한다.
 9. 테스트를 지우거나 건너뛰게 만들어서 통과시키지 않는다.
 10. **좌표계와 시간 규칙 (융합 전제)**: TF 프레임은 `map` → `odom` → `base_link` → 센서(`camera_link`, `gps_link`, `lidar_link`, `imu_link`), 단위는 SI(m, rad, s). 모든 메시지의 `header.frame_id` 를 채우고 `header.stamp` 는 **센서 측정 시각**을 넣는다(발행 시각 아님). rosbag 재생 시 `use_sim_time:=true`.
-11. 다른 팀에 보내는 출력(토픽/메시지)이 새로 생기거나 바뀌면 `src/fusion/anjabom_fusion/config/fusion_inputs.yaml` 에 반영이 필요하다고 PR 에 적는다 (융합은 팀 리더 공동 담당).
+11. 다른 팀에 보내는 출력(토픽/메시지)이 새로 생기거나 바뀌면 `src/fusion/mad_fusion/config/fusion_inputs.yaml` 에 반영이 필요하다고 PR 에 적는다 (융합은 팀 리더 공동 담당).
 
 ## 빌드 / 테스트 (컨테이너 안)
 ```bash

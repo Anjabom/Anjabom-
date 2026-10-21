@@ -1,6 +1,6 @@
 import pytest
 
-from anjabom_fusion.inputs import InputTracker, load_inputs
+from mad_fusion.inputs import InputTracker, load_inputs
 
 CONFIG = """
 inputs:

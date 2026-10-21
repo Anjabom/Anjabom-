@@ -3,8 +3,8 @@
 import rclpy
 from rclpy.node import Node
 
-from anjabom_bringup.heartbeat import HeartbeatTracker
-from anjabom_interfaces.msg import NodeStatus
+from mad_bringup.heartbeat import HeartbeatTracker
+from mad_interfaces.msg import NodeStatus
 
 
 class SystemMonitor(Node):
