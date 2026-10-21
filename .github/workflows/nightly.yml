@@ -1,0 +1,45 @@
+# 매일 새벽 main 전체 통합 빌드/테스트. 실패하면 이슈를 열어 모두에게 알린다.
+name: Nightly 통합 빌드
+
+on:
+  schedule:
+    - cron: "17 18 * * *"   # 매일 03:17 KST
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+    with:
+      full: true
+
+  report:
+    needs: ci
+    if: always()
+    runs-on: ubuntu-22.04
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/github-script@v8
+        env:
+          RESULT: ${{ needs.ci.result }}
+        with:
+          script: |
+            const label = 'ci:nightly-failure';
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const { data: open } = await github.rest.issues.listForRepo({ ...context.repo, labels: label, state: 'open' });
+            if (process.env.RESULT === 'success') {
+              for (const issue of open) {
+                await github.rest.issues.createComment({ ...context.repo, issue_number: issue.number, body: `✅ 야간 빌드 복구됨: ${runUrl}` });
+                await github.rest.issues.update({ ...context.repo, issue_number: issue.number, state: 'closed', state_reason: 'completed' });
+              }
+              return;
+            }
+            const body = `❌ main 야간 통합 빌드 실패 (${new Date().toISOString().slice(0, 10)})\n\n실행 로그: ${runUrl}\n\n마지막으로 병합된 PR 작성자가 확인해 주세요.`;
+            if (open.length) {
+              await github.rest.issues.createComment({ ...context.repo, issue_number: open[0].number, body });
+            } else {
+              await github.rest.issues.create({ ...context.repo, title: '🚨 main 야간 통합 빌드 실패', body, labels: [label, 'priority:high'] });
+            }

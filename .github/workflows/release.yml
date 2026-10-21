@@ -1,0 +1,47 @@
+# 통합 기준 버전(태그 + 릴리스 노트) 만들기. Actions 탭에서 수동 실행.
+# 릴리스 노트는 .github/release.yml 의 팀별 분류로 자동 작성된다.
+name: 버전 릴리스
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: "올릴 자리 (minor: 주간 통합 / patch: 버그 수정 / major: 대회·시연 버전)"
+        type: choice
+        options: [minor, patch, major]
+        default: minor
+
+permissions:
+  contents: write
+  checks: read
+
+jobs:
+  release:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/github-script@v8
+        env:
+          BUMP: ${{ inputs.bump }}
+        with:
+          script: |
+            const { data: runs } = await github.rest.checks.listForRef({ ...context.repo, ref: 'main', check_name: 'CI 통과' });
+            const last = runs.check_runs[0];
+            if (!last || last.conclusion !== 'success') {
+              core.setFailed('main 의 최신 CI 가 통과 상태가 아닙니다. CI 를 먼저 고쳐 주세요.');
+              return;
+            }
+            let prev = 'v0.0.0';
+            try {
+              prev = (await github.rest.repos.getLatestRelease(context.repo)).data.tag_name;
+            } catch (e) {
+              if (e.status !== 404) throw e;
+            }
+            let [major, minor, patch] = prev.replace(/^v/, '').split('.').map(Number);
+            if (process.env.BUMP === 'major') { major++; minor = 0; patch = 0; }
+            else if (process.env.BUMP === 'minor') { minor++; patch = 0; }
+            else { patch++; }
+            const tag = `v${major}.${minor}.${patch}`;
+            const { data } = await github.rest.repos.createRelease({
+              ...context.repo, tag_name: tag, target_commitish: 'main', name: tag, generate_release_notes: true,
+            });
+            core.notice(`릴리스 생성: ${data.html_url}`);

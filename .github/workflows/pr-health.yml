@@ -1,0 +1,47 @@
+# 매일 아침 열린 PR 점검: 오래 열린 PR / main 보다 많이 뒤처진 PR 에 라벨과 안내를 단다.
+# "마지막에 한꺼번에 합치다 충돌" 을 막기 위한 조기 경보.
+name: PR 상태 점검
+
+on:
+  schedule:
+    - cron: "43 23 * * 0-4"   # 평일 08:43 KST
+  workflow_dispatch:
+
+permissions:
+  pull-requests: write
+  issues: write
+  contents: read
+
+env:
+  STALE_DAYS: 3        # 이 기간보다 오래 열린 PR → status:stale
+  BEHIND_LIMIT: 20     # main 보다 이 개수 이상 뒤처지면 → status:behind-main
+
+jobs:
+  check:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/github-script@v8
+        with:
+          script: |
+            const staleDays = Number(process.env.STALE_DAYS);
+            const behindLimit = Number(process.env.BEHIND_LIMIT);
+            const prs = await github.paginate(github.rest.pulls.list, { ...context.repo, state: 'open' });
+            const setLabel = async (pr, name, on, note) => {
+              const has = pr.labels.some(l => l.name === name);
+              if (on && !has) {
+                await github.rest.issues.addLabels({ ...context.repo, issue_number: pr.number, labels: [name] });
+                await github.rest.issues.createComment({ ...context.repo, issue_number: pr.number, body: note });
+              } else if (!on && has) {
+                await github.rest.issues.removeLabel({ ...context.repo, issue_number: pr.number, name });
+              }
+            };
+            for (const pr of prs) {
+              const ageDays = (Date.now() - new Date(pr.created_at)) / 86400000;
+              await setLabel(pr, 'status:stale', !pr.draft && ageDays > staleDays,
+                `⏰ 이 PR 이 ${Math.floor(ageDays)}일째 열려 있습니다. 리뷰를 요청하거나, 작게 나눠 먼저 병합해 주세요. (@${pr.user.login})`);
+              const { data: cmp } = await github.rest.repos.compareCommitsWithBasehead({
+                ...context.repo, basehead: `${pr.head.sha}...${pr.base.ref}`,
+              });
+              await setLabel(pr, 'status:behind-main', cmp.ahead_by >= behindLimit,
+                `🔀 main 보다 ${cmp.ahead_by}개 커밋 뒤처져 있습니다. \`./scripts/sync_main.sh\` 로 main 을 병합해 충돌을 미리 해결해 주세요. (@${pr.user.login})`);
+            }
