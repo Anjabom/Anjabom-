@@ -24,7 +24,7 @@ jobs:
     name: 규칙 안내
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v5   # base 브랜치(.github/teams.json 읽기용)
+      - uses: actions/checkout@v7   # base 브랜치(.github/teams.json 읽기용)
       - uses: actions/github-script@v8
         with:
           script: |

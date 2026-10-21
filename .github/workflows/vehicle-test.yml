@@ -28,7 +28,7 @@ jobs:
       DEV_NAME: mad-ci-${{ github.run_id }}
       DURATION: ${{ inputs.duration }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: 공용 이미지 최신화
         run: ./scripts/dev.sh --pull
       - name: 빌드 · 테스트 · 통합 실행 (컨테이너, 센서 연결)

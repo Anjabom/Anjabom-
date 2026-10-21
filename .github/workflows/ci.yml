@@ -30,7 +30,7 @@ jobs:
     name: 코드 스타일 / 팀 설정 동기화
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v6
         with:
           python-version: "3.10"
@@ -55,7 +55,7 @@ jobs:
       devcontainer: ${{ steps.scope.outputs.devcontainer }}
       image: ${{ steps.image.outputs.image }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - run: pip install pyyaml==6.0.2
@@ -112,7 +112,7 @@ jobs:
       FULL: ${{ needs.changes.outputs.full }}
       ROS_PATHS: ${{ needs.changes.outputs.ros_paths }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: 의존성 설치 (rosdep)
         run: |
           apt-get update
@@ -166,7 +166,7 @@ jobs:
     if: needs.changes.outputs.firmware == 'true'
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: arduino/setup-arduino-cli@v2
         with:
           version: ${{ env.ARDUINO_CLI_VERSION }}
@@ -188,7 +188,7 @@ jobs:
     if: needs.changes.outputs.devcontainer == 'true' || inputs.full
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - run: docker build -f .devcontainer/Dockerfile --build-arg ROS_DISTRO="$ROS_DISTRO" -t mad-dev .
 
   # 브랜치 보호 규칙에서 "필수 검사"로 지정할 단일 체크. (건너뛴 job 은 통과로 간주)
