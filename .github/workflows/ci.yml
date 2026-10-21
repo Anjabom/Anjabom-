@@ -53,6 +53,7 @@ jobs:
       ros_paths: ${{ steps.scope.outputs.ros_paths }}
       firmware: ${{ steps.scope.outputs.firmware }}
       devcontainer: ${{ steps.scope.outputs.devcontainer }}
+      image: ${{ steps.image.outputs.image }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -75,7 +76,7 @@ jobs:
           [ "$FORCE_FULL" = true ] && files="scripts/full-build"
           scope=$(echo "$files" | python3 scripts/teams.py changed)
           echo "$scope" | tee -a "$GITHUB_OUTPUT"
-          if echo "$files" | grep -qE '^(\.devcontainer/|requirements-dev\.txt)'; then
+          if echo "$files" | grep -qE '^(\.devcontainer/|\.dockerignore|requirements(-dev)?\.txt)'; then
             echo "devcontainer=true" >> "$GITHUB_OUTPUT"
           fi
           {
@@ -84,13 +85,26 @@ jobs:
             echo "$scope"
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
+      - id: image
+        name: 공용 개발 이미지 확인
+        run: |
+          # 팀원들이 쓰는 공용 이미지(GHCR)가 있으면 CI 도 같은 이미지로 검사한다.
+          img="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/anjabom-dev:humble"
+          if docker manifest inspect "$img" >/dev/null 2>&1; then
+            echo "image=$img" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::공용 이미지가 아직 없거나 비공개라 기본 ROS 이미지로 검사합니다 ($img)"
+            echo "image=ros:humble-ros-base-jammy" >> "$GITHUB_OUTPUT"
+          fi
 
   ros:
     name: ROS2 빌드 / 테스트
     needs: changes
     if: needs.changes.outputs.ros == 'true'
     runs-on: ubuntu-22.04
-    container: ros:humble-ros-base-jammy
+    container:
+      image: ${{ needs.changes.outputs.image }}
+      options: --user root
     defaults:
       run:
         shell: bash
@@ -158,13 +172,12 @@ jobs:
           version: ${{ env.ARDUINO_CLI_VERSION }}
       - run: |
           status=0
+          arduino-cli core update-index
           for sketch in firmware/arduino/*/sketch.yaml; do
             [ -f "$sketch" ] || continue
             dir=$(dirname "$sketch")
-            fqbn=$(sed -n 's/^default_fqbn:[[:space:]]*//p' "$sketch")
-            arduino-cli core install "${fqbn%:*}"
-            echo "::group::$dir ($fqbn)"
-            arduino-cli compile "$dir" || status=1
+            echo "::group::$dir"
+            arduino-cli compile "$dir" || status=1   # sketch.yaml 의 default_profile (보드/코어 버전 고정)
             echo "::endgroup::"
           done
           exit $status

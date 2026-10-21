@@ -7,6 +7,7 @@
   git diff --name-only origin/main | python3 scripts/teams.py changed
                                            # 변경 파일 → 영향 받는 팀/빌드 범위 (CI용)
   python3 scripts/teams.py list            # 팀 ID 목록
+  python3 scripts/teams.py image           # 공용 개발 이미지 이름
 """
 
 from __future__ import annotations
@@ -49,6 +50,7 @@ STATIC_LABELS = [
     ("area:shared", "fbca04", "공용 영역(인터페이스/통합 런치) 변경"),
     ("ci:nightly-failure", "b60205", "야간 통합 빌드 실패"),
     ("report:weekly", "bfdadc", "주간 진행 리포트"),
+    ("report:monthly", "bfdadc", "월간 진행 리포트"),
 ]
 
 ID_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
@@ -187,6 +189,15 @@ def update_issue_form(text: str, cfg: dict) -> str:
     return new
 
 
+DEVCONTAINER = ROOT / ".devcontainer" / "devcontainer.json"
+DEV_IMAGE_RE = re.compile(r'"image": "ghcr\.io/[^"]*"')
+
+
+def dev_image(cfg: dict) -> str:
+    """GHCR 이미지 이름 (.github/workflows/dev-image.yml 이 올리는 이름과 같아야 함)."""
+    return f"ghcr.io/{cfg['org'].lower()}/anjabom-dev:humble"
+
+
 def render_all(cfg: dict) -> dict[Path, str]:
     gh = ROOT / ".github"
     out = {
@@ -198,6 +209,7 @@ def render_all(cfg: dict) -> dict[Path, str]:
     }
     for form in ISSUE_FORMS:
         out[form] = update_issue_form(form.read_text(encoding="utf-8"), cfg)
+    out[DEVCONTAINER] = DEV_IMAGE_RE.sub(f'"image": "{dev_image(cfg)}"', DEVCONTAINER.read_text(encoding="utf-8"))
     return out
 
 
@@ -238,7 +250,14 @@ def cmd_check(cfg: dict) -> int:
 
 
 # 이 경로가 바뀌면 전체 빌드/테스트
-FULL_BUILD_PREFIXES = (".devcontainer/", "scripts/", ".github/workflows/ci.yml", "requirements-dev.txt")
+FULL_BUILD_PREFIXES = (
+    ".devcontainer/",
+    ".dockerignore",
+    "scripts/",
+    ".github/workflows/ci.yml",
+    "requirements.txt",
+    "requirements-dev.txt",
+)
 
 
 def cmd_changed(cfg: dict) -> int:
@@ -265,9 +284,12 @@ def cmd_changed(cfg: dict) -> int:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("command", choices=["sync", "check", "changed", "list"])
+    parser.add_argument("command", choices=["sync", "check", "changed", "list", "image"])
     args = parser.parse_args()
     cfg = load_config()
+    if args.command == "image":
+        print(dev_image(cfg))
+        return 0
     if args.command == "list":
         print("\n".join(t["id"] for t in cfg["teams"]))
         return 0

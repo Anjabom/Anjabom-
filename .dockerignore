@@ -1,0 +1,5 @@
+# 이미지 빌드에는 아래 파일만 필요 (코드 변경으로 이미지 캐시가 깨지지 않도록)
+*
+!requirements.txt
+!requirements-dev.txt
+!src/**/package.xml

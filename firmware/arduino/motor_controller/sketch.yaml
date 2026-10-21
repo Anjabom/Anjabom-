@@ -1,2 +1,8 @@
-# arduino-cli 가 사용하는 보드 설정. CI 가 이 값으로 컴파일 검사한다.
-default_fqbn: arduino:avr:uno
+# arduino-cli 스케치 설정. profile 에 보드와 코어 버전을 고정해 모두가 같은 버전으로 컴파일한다.
+# 라이브러리가 필요하면 profiles.uno.libraries 에 "- 이름 (버전)" 형식으로 추가.
+profiles:
+  uno:
+    fqbn: arduino:avr:uno
+    platforms:
+      - platform: arduino:avr (1.8.6)
+default_profile: uno

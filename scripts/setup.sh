@@ -13,12 +13,8 @@ fi
 rosdep update --rosdistro "${ROS_DISTRO}"
 rosdep install --from-paths src --ignore-src -y --rosdistro "${ROS_DISTRO}"
 
-echo "▶ 아두이노 보드 코어 설치"
-for sketch in firmware/arduino/*/sketch.yaml; do
-  [ -f "$sketch" ] || continue
-  fqbn=$(sed -n 's/^default_fqbn:[[:space:]]*//p' "$sketch")
-  arduino-cli core install "${fqbn%:*}"
-done
+echo "▶ 본체 노트북 기준 환경과 비교"
+python3 scripts/env_check.py || true
 
 if [ -z "$(git config user.name || true)" ]; then
   echo "⚠️  git config --global user.name / user.email 을 설정하세요."
