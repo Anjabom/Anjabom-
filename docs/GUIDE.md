@@ -40,8 +40,11 @@
 | 6 | 본체 노트북: Docker 설치, `--capture` 로 기준 환경 기록, 러너 등록 | [TARGET_ENV.md](TARGET_ENV.md) |
 | 7 | 노션 통합 토큰과 데이터베이스 ID 등록 | [NOTION.md](NOTION.md) |
 | 8 | 팀원별 `ROS_DOMAIN_ID` 배정표 공유 | [TEAM_GUIDE.md](TEAM_GUIDE.md#ros_domain_id-배정) |
+| 9 | Secret scanning / Push protection 켜기, 팀 리더가 `src/<팀>/AGENTS.md` 팀 규칙 작성 | [ORG_SETUP.md 7](ORG_SETUP.md), [AI_TOOLS.md](AI_TOOLS.md) |
 
 ## 2. 새 팀원 / 새 노트북에 적용하기 (약 30~60분)
+
+> AI 코딩 도구(Claude Code, Codex, Grok)를 쓴다면 3단계 후 [AI_TOOLS.md](AI_TOOLS.md) 를 보고 **컨테이너 안에서** 로그인합니다.
 
 1. GitHub 계정을 만들고, Organization 초대 메일을 수락합니다.
 2. 자기 OS 에 맞게 설치합니다: [윈도우](DEV_ENV.md#윈도우-노트북) / [우분투](DEV_ENV.md#우분투-노트북)
@@ -121,12 +124,21 @@ git push                         # PR → Ready for review
 | 본체 노트북 교체·업그레이드 | 새 본체에서 `--capture` → PR, 러너 재등록 |
 | ROS 배포판 변경 | [DEV_ENV.md - ROS 배포판을 바꿀 때](DEV_ENV.md#ros-배포판을-바꿀-때-관리자) |
 
-## 8. 자동화 한눈에 보기
+## 8. 여러 AI 도구를 함께 쓸 때
+
+| 무엇 | 어디서 |
+|---|---|
+| AI 가 따를 규칙 | 루트 `AGENTS.md` (공통) + `src/<팀>/AGENTS.md` (팀). 모든 도구가 읽음 |
+| AI 실행 위치 | 공용 컨테이너 안 (`./scripts/ai_tools.sh`, 로그인은 볼륨에 유지) |
+| AI 사용 기록 | PR 템플릿 체크 → `ai:*` 라벨 → 주간·월간 리포트 / 노션 `AI 활용 PR` |
+| 상세 | [AI_TOOLS.md](AI_TOOLS.md) |
+
+## 9. 자동화 한눈에 보기
 
 | 워크플로 | 언제 | 하는 일 |
 |---|---|---|
 | CI | PR, main push | 스타일 검사, 변경된 팀 패키지만 빌드·테스트, 아두이노 컴파일 → `CI 통과` |
-| PR 자동화 | PR 열림/수정 | 팀 라벨, 규칙 안내 댓글, 공용 영역 변경 시 전 팀 멘션, 보드 등록 |
+| PR 자동화 | PR 열림/수정 | 팀 라벨, AI 도구 라벨, 규칙 안내 댓글, 공용 영역 변경 시 전 팀 멘션, 보드 등록 |
 | 이슈 자동화 | 이슈 생성 | 양식의 팀 선택으로 라벨, 보드 등록 |
 | PR 상태 점검 | 평일 08:43 | 3일 넘은 PR, main 보다 20커밋 뒤처진 PR 경보 |
 | Nightly 통합 빌드 | 매일 03:17 | main 전체 빌드, 실패 시 이슈 생성/복구 시 닫기 |

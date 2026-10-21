@@ -137,6 +137,14 @@ git fetch --tags && git switch --detach v0.3.0
 
 ---
 
+## AI 코딩 도구 (Claude Code · Codex · Grok)
+컨테이너를 만들 때 자동으로 설치됩니다. **컨테이너 터미널에서** 실행하고 로그인합니다 (윈도우 PowerShell 에서 실행하지 않음).
+```bash
+./scripts/ai_tools.sh status
+claude        # 또는 codex, grok
+```
+자세한 규칙: [AI_TOOLS.md](AI_TOOLS.md)
+
 ## 공용 이미지 업데이트
 의존성(package.xml, requirements.txt)이나 Dockerfile 이 main 에 병합되면 이미지가 자동으로 다시 빌드됩니다.
 - VS Code: `F1` → **Dev Containers: Rebuild Container**

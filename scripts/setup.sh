@@ -13,6 +13,9 @@ fi
 rosdep update --rosdistro "${ROS_DISTRO}"
 rosdep install --from-paths src --ignore-src -y --rosdistro "${ROS_DISTRO}"
 
+echo "▶ AI 코딩 도구 설치 (컨테이너 안에서 실행되도록)"
+./scripts/ai_tools.sh install || echo "  (일부 AI 도구 설치 실패 - 개발에는 지장 없음)"
+
 echo "▶ 본체 노트북 기준 환경과 비교"
 python3 scripts/env_check.py || true
 

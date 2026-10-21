@@ -122,6 +122,9 @@ git push -u origin HEAD            # → PR 생성 → 병합
 - Fork pull request workflows: **Require approval for all external contributors** (외부인이 본체 노트북 러너에서 코드를 실행하지 못하게)
 - Workflow permissions: **Read repository contents** (각 워크플로가 필요한 권한만 따로 요청합니다)
 
+**Settings → Advanced Security** (public 저장소는 무료)
+- ✅ **Secret Protection** (Secret scanning) 과 ✅ **Push protection**: AI 도구나 사람이 API 키·토큰을 커밋하면 push 단계에서 차단합니다. 저장소의 pre-commit `API 키/토큰 커밋 차단` 훅과 이중 방어입니다.
+
 **공용 개발 이미지 만들기** (모든 PC 가 본체와 같은 환경을 쓰기 위한 핵심)
 1. 이 PR 이 병합되면 `공용 개발 이미지` 워크플로가 자동으로 실행됩니다. 실행되지 않았다면 **Actions → 공용 개발 이미지 → Run workflow** 로 직접 실행합니다 (약 15~20분).
 2. 끝나면 Organization → **Packages → anjabom-dev → Package settings** 에서:

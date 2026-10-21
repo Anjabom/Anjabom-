@@ -48,6 +48,14 @@ RUN (id -u ${USER_UID} >/dev/null 2>&1 || useradd -m -s /bin/bash -u ${USER_UID}
 USER ${USERNAME}
 RUN rosdep update --rosdistro ${ROS_DISTRO}
 
+# AI 코딩 도구(scripts/ai_tools.sh)용 경로. 실행 파일은 ~/.local, 로그인 정보는 ~/.ai-config 에 두고
+# devcontainer/dev.sh 가 두 경로를 Docker 볼륨으로 연결한다 (→ 이미지에서 ~/.local 에 다른 것을 설치하지 말 것)
+ENV PATH=/home/${USERNAME}/.local/bin:${PATH} \
+    CLAUDE_CONFIG_DIR=/home/${USERNAME}/.ai-config/claude \
+    CODEX_HOME=/home/${USERNAME}/.ai-config/codex
+RUN mkdir -p ~/.local/bin ~/.ai-config/claude ~/.ai-config/codex ~/.ai-config/grok \
+    && ln -s ~/.ai-config/grok ~/.grok
+
 # 아두이노 보드 코어 (버전 고정)
 ARG ARDUINO_AVR_CORE=arduino:avr@1.8.6
 RUN arduino-cli core update-index && arduino-cli core install ${ARDUINO_AVR_CORE}

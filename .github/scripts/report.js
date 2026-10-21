@@ -64,10 +64,20 @@ async function collect({ github, context, cfg, period }) {
   closedIssues.forEach(i => (i.assignees || []).forEach(a => bump(a.login, 'issues')));
   const contributors = [...people.values()].sort((a, b) => b.prs + b.issues - (a.prs + a.issues));
 
+  // AI 도구 활용: 병합된 PR 의 ai:* 라벨 (PR 자동화가 템플릿 체크/커밋 트레일러로 부여)
+  const ai = Object.fromEntries(AI_TOOLS.map(([k]) => [k, 0]));
+  let aiPrs = 0;
+  for (const pr of merged) {
+    const used = pr.labels.map(l => l.name).filter(n => n.startsWith('ai:')).map(n => n.slice(3));
+    if (used.length) aiPrs += 1;
+    used.forEach(k => { if (k in ai) ai[k] += 1; });
+  }
+
   return {
     period,
     teams,
     contributors,
+    ai,
     releases,
     totals: {
       merged: merged.length,
@@ -75,9 +85,20 @@ async function collect({ github, context, cfg, period }) {
       inProgress: inProgress.length,
       blocked: blocked.length,
       people: contributors.length,
+      aiPrs,
     },
   };
 }
+
+const AI_TOOLS = [
+  ['claude', 'Claude Code'],
+  ['codex', 'Codex'],
+  ['grok', 'Grok'],
+  ['other', '기타'],
+];
+const aiSummary = data =>
+  `병합 PR ${data.totals.merged}개 중 ${data.totals.aiPrs}개 AI 활용 - ` +
+  AI_TOOLS.map(([k, name]) => `${name} ${data.ai[k]}`).join(' · ');
 
 const who = i => (i.assignees && i.assignees.length ? i.assignees : [i.user]).map(u => u.login).join(', ');
 const SECTIONS = [
@@ -103,6 +124,9 @@ function toMarkdown(data) {
   }
   if (contributors.length) {
     md += `\n### 👥 팀원별 기여\n${contributors.map(p => `- \`${p.login}\`: 병합 PR ${p.prs}, 완료 이슈 ${p.issues}`).join('\n')}\n`;
+  }
+  if (data.totals.merged) {
+    md += `\n### 🤖 AI 도구 활용\n- ${aiSummary(data)}\n`;
   }
   if (releases.length) {
     md += `\n### 🏷️ 릴리스\n${releases.map(r => `- [${r.tag}](${r.url})`).join('\n')}\n`;
@@ -142,6 +166,10 @@ function toNotionBlocks(data) {
       blocks.push(block('bulleted_list_item', [text(`${p.login}: 병합 PR ${p.prs}, 완료 이슈 ${p.issues}`)]));
     }
   }
+  if (data.totals.merged) {
+    blocks.push(block('heading_2', [text('AI 도구 활용')]));
+    blocks.push(block('bulleted_list_item', [text(aiSummary(data))]));
+  }
   if (data.releases.length) {
     blocks.push(block('heading_2', [text('릴리스')]));
     for (const r of data.releases) blocks.push(block('bulleted_list_item', [text(r.tag, r.url)]));
@@ -171,6 +199,7 @@ async function toNotion({ data, token, databaseId, reportUrl }) {
     '진행 중': { number: totals.inProgress },
     막힘: { number: totals.blocked },
     '참여 인원': { number: totals.people },
+    'AI 활용 PR': { number: totals.aiPrs },
     릴리스: { rich_text: [text(releases.map(r => r.tag).join(', ') || '-')] },
     'GitHub 리포트': { url: reportUrl || null },
   };

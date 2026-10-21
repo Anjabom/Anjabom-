@@ -103,5 +103,25 @@
     "name": "report:monthly",
     "color": "bfdadc",
     "description": "월간 진행 리포트"
+  },
+  {
+    "name": "ai:claude",
+    "color": "d4c5f9",
+    "description": "Claude Code 로 작성/수정"
+  },
+  {
+    "name": "ai:codex",
+    "color": "d4c5f9",
+    "description": "OpenAI Codex 로 작성/수정"
+  },
+  {
+    "name": "ai:grok",
+    "color": "d4c5f9",
+    "description": "Grok 으로 작성/수정"
+  },
+  {
+    "name": "ai:other",
+    "color": "d4c5f9",
+    "description": "기타 AI 도구로 작성/수정"
   }
 ]

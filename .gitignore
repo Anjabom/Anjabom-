@@ -25,3 +25,12 @@ rosbag2_*/
 
 # 개인 설정
 .env
+
+# AI 코딩 도구 개인 설정 (공용 규칙은 AGENTS.md 에만 쓴다)
+CLAUDE.local.md
+.claude/settings.local.json
+AGENTS.override.md
+AGENTS.local.md
+.codex/
+.grok/sessions/
+.aider*

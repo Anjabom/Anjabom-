@@ -51,6 +51,10 @@ STATIC_LABELS = [
     ("ci:nightly-failure", "b60205", "야간 통합 빌드 실패"),
     ("report:weekly", "bfdadc", "주간 진행 리포트"),
     ("report:monthly", "bfdadc", "월간 진행 리포트"),
+    ("ai:claude", "d4c5f9", "Claude Code 로 작성/수정"),
+    ("ai:codex", "d4c5f9", "OpenAI Codex 로 작성/수정"),
+    ("ai:grok", "d4c5f9", "Grok 으로 작성/수정"),
+    ("ai:other", "d4c5f9", "기타 AI 도구로 작성/수정"),
 ]
 
 ID_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
@@ -198,6 +202,42 @@ def dev_image(cfg: dict) -> str:
     return f"ghcr.io/{cfg['org'].lower()}/anjabom-dev:humble"
 
 
+# ── AI 코딩 도구 지침 (AGENTS.md / CLAUDE.md) ─────────────────
+# 규칙 원본은 AGENTS.md (Codex, Grok 등이 읽음). CLAUDE.md 는 그것을 가져오기만 한다.
+
+AGENTS_ROOT = ROOT / "AGENTS.md"
+AGENTS_TEAMS_RE = re.compile(r"(<!-- BEGIN TEAMS[^\n]*-->\n).*?(<!-- END TEAMS -->)", re.S)
+CLAUDE_STUB = (
+    "<!-- 자동 생성 (scripts/teams.py sync). 규칙은 같은 폴더의 AGENTS.md 에 쓴다 - 모든 AI 도구 공용 -->\n"
+    "@AGENTS.md\n"
+)
+
+
+def update_agents_root(text: str, cfg: dict) -> str:
+    rows = ["| 팀 id | 이름 | 담당 폴더 | 설명 |", "|---|---|---|---|"]
+    for t in cfg["teams"]:
+        paths = ", ".join(f"`{p}`" for p in t["paths"])
+        rows.append(f"| `{t['id']}` | {t['name']} | {paths} | {t['description']} |")
+    new, n = AGENTS_TEAMS_RE.subn(lambda m: m.group(1) + "\n".join(rows) + "\n" + m.group(2), text)
+    if n == 0:
+        raise SystemExit("AGENTS.md 에서 팀 표 마커를 찾지 못했습니다")
+    return new
+
+
+def team_agents_stub(cfg: dict, team: dict, path: str) -> str:
+    """팀 폴더 AGENTS.md 초안. 없을 때만 만들고, 이후에는 팀이 직접 관리한다."""
+    return (
+        f"# {team['name']} 팀 AI 지침 (`{path}`)\n\n"
+        "<!-- 이 파일은 팀이 직접 관리한다. 루트 AGENTS.md 의 규칙 위에 팀 규칙만 추가한다. -->\n\n"
+        f"- 팀: {team['name']} (`{team['id']}`) - {team['description']}\n"
+        f"- 담당 폴더: {', '.join(f'`{p}`' for p in team['paths'])}\n"
+        f"- 빌드/테스트: `./scripts/check.sh {team['id']}`\n"
+        f"- 브랜치: `{team['id']}/<이슈번호>-<설명>`\n\n"
+        "## 팀 규칙\n\n"
+        "- (예: 발행/구독 토픽과 메시지 타입, 좌표계와 단위, 주기(Hz), 센서 드라이버, 금지 사항)\n"
+    )
+
+
 def render_all(cfg: dict) -> dict[Path, str]:
     gh = ROOT / ".github"
     out = {
@@ -210,6 +250,13 @@ def render_all(cfg: dict) -> dict[Path, str]:
     for form in ISSUE_FORMS:
         out[form] = update_issue_form(form.read_text(encoding="utf-8"), cfg)
     out[DEVCONTAINER] = DEV_IMAGE_RE.sub(f'"image": "{dev_image(cfg)}"', DEVCONTAINER.read_text(encoding="utf-8"))
+    out[AGENTS_ROOT] = update_agents_root(AGENTS_ROOT.read_text(encoding="utf-8"), cfg)
+    out[ROOT / "CLAUDE.md"] = CLAUDE_STUB
+    for team in cfg["teams"]:
+        for p in team["paths"]:
+            agents = ROOT / p / "AGENTS.md"
+            out[agents] = agents.read_text(encoding="utf-8") if agents.exists() else team_agents_stub(cfg, team, p)
+            out[ROOT / p / "CLAUDE.md"] = CLAUDE_STUB
     return out
 
 
@@ -219,15 +266,9 @@ def render_all(cfg: dict) -> dict[Path, str]:
 def cmd_sync(cfg: dict) -> int:
     for path, content in render_all(cfg).items():
         if not path.exists() or path.read_text(encoding="utf-8") != content:
+            path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(content, encoding="utf-8")
             print(f"갱신: {path.relative_to(ROOT)}")
-    for team in cfg["teams"]:
-        for p in team["paths"]:
-            d = ROOT / p
-            if not d.exists():
-                d.mkdir(parents=True)
-                (d / ".gitkeep").touch()
-                print(f"폴더 생성: {p}")
     if cfg["org"] == "CHANGE_ME":
         print("⚠️  config/teams.yml 의 org 를 실제 Organization 이름으로 바꾸세요.")
     return 0
