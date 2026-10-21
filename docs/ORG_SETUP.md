@@ -1,6 +1,6 @@
 # GitHub Organization 설정 가이드 (관리자용)
 
-> 이 문서는 **처음 한 번** 관리자가 GitHub 웹에서 해야 하는 설정입니다.
+> 이 문서는 **처음 한 번** 관리자가 GitHub 웹에서 해야 하는 설정입니다. 전체 흐름은 [GUIDE.md](GUIDE.md) 를 먼저 보세요.
 > 코드(워크플로, 템플릿, CODEOWNERS 등)는 저장소에 이미 들어 있고, 여기서는 GitHub 설정 화면에서만 할 수 있는 일을 다룹니다.
 
 ## 0. 현재 상태 (조사 결과, 2026-10-21)
@@ -115,13 +115,26 @@ git push -u origin HEAD            # → PR 생성 → 병합
 > - **Secrets**: `PROJECT_TOKEN` = `project` 권한이 있는 Personal Access Token (classic)
 > 설정하면 `pr-automation.yml`, `issue-automation.yml` 이 이슈/PR 을 자동 등록합니다. 설정하지 않으면 이 단계는 건너뜁니다.
 
-## 7. Actions 설정 확인
+## 7. Actions 설정과 공용 개발 이미지
 
 **Settings → Actions → General**
 - Actions permissions: **Allow all actions and reusable workflows**
+- Fork pull request workflows: **Require approval for all external contributors** (외부인이 본체 노트북 러너에서 코드를 실행하지 못하게)
 - Workflow permissions: **Read repository contents** (각 워크플로가 필요한 권한만 따로 요청합니다)
 
-## 8. 확인 체크리스트
+**공용 개발 이미지 만들기** (모든 PC 가 본체와 같은 환경을 쓰기 위한 핵심)
+1. 이 PR 이 병합되면 `공용 개발 이미지` 워크플로가 자동으로 실행됩니다. 실행되지 않았다면 **Actions → 공용 개발 이미지 → Run workflow** 로 직접 실행합니다 (약 15~20분).
+2. 끝나면 Organization → **Packages → anjabom-dev → Package settings** 에서:
+   - **Change visibility → Public**: 팀원이 로그인 없이 받을 수 있습니다. 저장소가 private 이면 Private 로 두고, 팀원은 `docker login ghcr.io` 를 해야 합니다.
+   - **Manage Actions access** 에 이 저장소가 Write 로 있는지 확인합니다.
+3. 이후 CI 도 자동으로 이 이미지를 사용합니다.
+
+## 8. 본체 노트북, 노션 연동
+
+- 본체 노트북 기준 환경 기록과 실기 테스트 러너 등록: [TARGET_ENV.md](TARGET_ENV.md)
+- 주간·월간 작업 기록을 노션에 연동 (`NOTION_TOKEN`, `NOTION_DATABASE_ID`): [NOTION.md](NOTION.md)
+
+## 9. 확인 체크리스트
 
 - [ ] 모든 팀원이 Organization 에 가입하고 각 팀에 속해 있다
 - [ ] `config/teams.yml` 의 `org` 가 실제 이름이고, CODEOWNERS 에 오류 표시가 없다 (GitHub 에서 CODEOWNERS 파일을 열었을 때 빨간 경고가 없어야 함)
@@ -129,3 +142,7 @@ git push -u origin HEAD            # → PR 생성 → 병합
 - [ ] main 에 직접 push 하면 거부된다
 - [ ] 테스트 PR 을 올렸을 때 팀 라벨이 붙고, 코드 오너 리뷰가 요청되고, `CI 통과` 체크가 돈다
 - [ ] 새 이슈가 프로젝트 보드에 자동으로 나타난다
+- [ ] `ghcr.io/<org>/anjabom-dev:humble` 이미지가 있고 Public 이다
+- [ ] 본체 노트북에서 `--capture` 한 `config/target_env.yml` 이 main 에 있다
+- [ ] 본체 노트북 러너가 Settings → Actions → Runners 에 `Idle` 로 보인다
+- [ ] 진행 리포트를 수동 실행했을 때 노션 데이터베이스에 행이 생긴다

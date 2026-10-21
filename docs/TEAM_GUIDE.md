@@ -44,10 +44,11 @@ docs/              문서
 
 | 무엇 | 어떻게 고정하나 |
 |---|---|
-| OS / ROS2 | Ubuntu 22.04 + ROS2 Humble. devcontainer(Docker) 이미지가 동일 ([DEV_ENV.md](DEV_ENV.md)) |
-| ROS 패키지 의존성 | 각 패키지 `package.xml` 에 적고 `rosdep install` 로 설치. 수동 `apt install` 금지 |
+| OS / ROS2 | Ubuntu 22.04 + ROS2 Humble. 모든 PC 가 GHCR 의 같은 공용 이미지를 사용 ([TARGET_ENV.md](TARGET_ENV.md)) |
+| pip 패키지 | `requirements.txt` 에 `이름==버전` 으로 고정 → 공용 이미지에 포함 |
+| ROS 패키지 의존성 | 각 패키지 `package.xml` 에 적음 → 공용 이미지에 포함. 수동 `apt install` 금지 |
 | 개발 도구 | `requirements-dev.txt`, `.pre-commit-config.yaml` 에 버전 고정 |
-| 아두이노 | `arduino-cli` 버전은 Dockerfile 과 CI 에, 보드는 `sketch.yaml` 에 고정. 라이브러리는 `sketch.yaml` 의 profiles 사용 |
+| 아두이노 | `arduino-cli` 버전은 Dockerfile 과 CI 에, 보드·코어·라이브러리 버전은 `sketch.yaml` 의 profile 에 고정 |
 | 코드 기준점 | 통합 테스트를 통과한 시점에 **Release 태그**(`v0.3.0`)를 만듭니다. 차량 테스트, 시연, 대회 때는 태그 버전을 사용 |
 
 ### 릴리스 만들기 (주 1회 권장, 관리자)
