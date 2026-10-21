@@ -1,0 +1,278 @@
+#!/usr/bin/env python3
+"""config/teams.yml 을 기준으로 팀 관련 파일을 생성/검사한다.
+
+사용법:
+  python3 scripts/teams.py sync            # 생성 파일 갱신
+  python3 scripts/teams.py check           # 생성 파일이 최신인지 검사 (CI용)
+  git diff --name-only origin/main | python3 scripts/teams.py changed
+                                           # 변경 파일 → 영향 받는 팀/빌드 범위 (CI용)
+  python3 scripts/teams.py list            # 팀 ID 목록
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import re
+import sys
+from pathlib import Path
+
+import yaml
+
+ROOT = Path(__file__).resolve().parent.parent
+CONFIG = ROOT / "config" / "teams.yml"
+GENERATED_HEADER = "자동 생성 파일 - 직접 수정하지 말고 config/teams.yml 수정 후 `python3 scripts/teams.py sync` 실행"
+
+ISSUE_FORMS = [
+    ROOT / ".github" / "ISSUE_TEMPLATE" / "1-feature.yml",
+    ROOT / ".github" / "ISSUE_TEMPLATE" / "2-bug.yml",
+    ROOT / ".github" / "ISSUE_TEMPLATE" / "3-interface-change.yml",
+]
+BEGIN_MARK = "# BEGIN TEAM OPTIONS"
+END_MARK = "# END TEAM OPTIONS"
+
+# 팀과 무관하게 항상 존재하는 라벨
+STATIC_LABELS = [
+    ("type:feature", "a2eeef", "새 기능"),
+    ("type:bug", "d73a4a", "버그"),
+    ("type:interface", "fbca04", "팀 간 인터페이스(메시지) 변경"),
+    ("type:chore", "c5def5", "빌드/CI/환경/리팩터링"),
+    ("type:docs", "0075ca", "문서"),
+    ("status:in-progress", "fef2c0", "작업 중"),
+    ("status:blocked", "b60205", "다른 작업/팀을 기다리는 중"),
+    ("status:review-needed", "0052cc", "리뷰 필요"),
+    ("status:stale", "cccccc", "오래 열려 있는 PR - 병합 또는 분할 필요"),
+    ("status:behind-main", "e99695", "main 보다 많이 뒤처짐 - main 병합 필요"),
+    ("priority:high", "b60205", "우선순위 높음"),
+    ("priority:medium", "fbca04", "우선순위 보통"),
+    ("priority:low", "0e8a16", "우선순위 낮음"),
+    ("area:shared", "fbca04", "공용 영역(인터페이스/통합 런치) 변경"),
+    ("ci:nightly-failure", "b60205", "야간 통합 빌드 실패"),
+    ("report:weekly", "bfdadc", "주간 진행 리포트"),
+]
+
+ID_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
+
+
+def load_config() -> dict:
+    cfg = yaml.safe_load(CONFIG.read_text(encoding="utf-8"))
+    ids = set()
+    for team in cfg.get("teams", []):
+        tid = team["id"]
+        if not ID_RE.match(tid):
+            sys.exit(f"잘못된 팀 id '{tid}': 영문 소문자/숫자/하이픈만 사용")
+        if tid in ids:
+            sys.exit(f"팀 id 중복: {tid}")
+        ids.add(tid)
+        team.setdefault("color", "ededed")
+        team.setdefault("description", team["name"])
+        team["paths"] = [p.rstrip("/") + "/" for p in team.get("paths", [])]
+    for area in cfg.get("shared", []):
+        area["path"] = area["path"].rstrip("/") + "/"
+    return cfg
+
+
+def handle(org: str, team_slug: str) -> str:
+    return f"@{org}/{team_slug}"
+
+
+# ── 생성기 ────────────────────────────────────────────────────
+
+
+def gen_codeowners(cfg: dict) -> str:
+    org = cfg["org"]
+    lines = [f"# {GENERATED_HEADER}", "#", "# 마지막에 매칭되는 규칙이 우선한다.", ""]
+    lines.append(f"* {handle(org, cfg['maintainers_team'])}")
+    lines.append("")
+    lines.append("# 팀별 담당 영역")
+    for team in cfg["teams"]:
+        for path in team["paths"]:
+            lines.append(f"/{path} {handle(org, team['github_team'])}")
+    lines.append("")
+    lines.append("# 공용 영역")
+    for area in cfg.get("shared", []):
+        owners = " ".join(handle(org, cfg[f"{o}_team"]) for o in area["owners"])
+        lines.append(f"/{area['path']} {owners}")
+    return "\n".join(lines) + "\n"
+
+
+def gen_labeler(cfg: dict) -> str:
+    """actions/labeler@v5 설정: 변경 경로 / 브랜치 이름으로 팀 라벨 부여."""
+    lines = [f"# {GENERATED_HEADER}", ""]
+    for team in cfg["teams"]:
+        lines.append(f'"team:{team["id"]}":')
+        lines.append("  - any:")
+        lines.append("      - changed-files:")
+        lines.append("          - any-glob-to-any-file:")
+        for path in team["paths"]:
+            lines.append(f'              - "{path}**"')
+        lines.append(f'      - head-branch: ["^{team["id"]}/"]')
+    shared_notify = [a["path"] for a in cfg.get("shared", []) if a.get("notify_all_teams")]
+    if shared_notify:
+        lines.append('"area:shared":')
+        lines.append("  - changed-files:")
+        lines.append("      - any-glob-to-any-file:")
+        for path in shared_notify:
+            lines.append(f'          - "{path}**"')
+        lines.append('"type:interface":')
+        lines.append("  - changed-files:")
+        lines.append("      - any-glob-to-any-file:")
+        lines.append('          - "src/interfaces/**"')
+    return "\n".join(lines) + "\n"
+
+
+def gen_labels(cfg: dict) -> str:
+    labels = [
+        {"name": f"team:{t['id']}", "color": t["color"], "description": f"{t['name']} 팀 - {t['description']}"[:100]}
+        for t in cfg["teams"]
+    ]
+    labels += [{"name": n, "color": c, "description": d} for n, c, d in STATIC_LABELS]
+    return json.dumps(labels, ensure_ascii=False, indent=2) + "\n"
+
+
+def gen_teams_json(cfg: dict) -> str:
+    """워크플로(JavaScript)에서 읽는 팀 정보."""
+    org = cfg["org"]
+    data = {
+        "_generated": GENERATED_HEADER,
+        "org": org,
+        "teams": [
+            {
+                "id": t["id"],
+                "name": t["name"],
+                "label": f"team:{t['id']}",
+                "handle": handle(org, t["github_team"]),
+                "paths": t["paths"],
+            }
+            for t in cfg["teams"]
+        ],
+        "shared": [
+            {
+                "path": a["path"],
+                "owners": [handle(org, cfg[f"{o}_team"]) for o in a["owners"]],
+                "notify_all_teams": bool(a.get("notify_all_teams")),
+            }
+            for a in cfg.get("shared", [])
+        ],
+    }
+    return json.dumps(data, ensure_ascii=False, indent=2) + "\n"
+
+
+def gen_release(cfg: dict) -> str:
+    """GitHub 자동 릴리스 노트 분류 (.github/release.yml)."""
+    lines = [f"# {GENERATED_HEADER}", "changelog:", "  categories:"]
+    lines += ["    - title: 🔌 인터페이스 변경", "      labels: [type:interface]"]
+    for team in cfg["teams"]:
+        lines += [f"    - title: {team['name']} 팀", f"      labels: [team:{team['id']}]"]
+    lines += ["    - title: 기타", "      labels: ['*']"]
+    return "\n".join(lines) + "\n"
+
+
+def team_options_block(cfg: dict, indent: str) -> str:
+    opts = [f"{indent}- {t['id']} ({t['name']})" for t in cfg["teams"]]
+    opts.append(f"{indent}- shared (공용/여러 팀)")
+    return "\n".join(opts)
+
+
+def update_issue_form(text: str, cfg: dict) -> str:
+    pattern = re.compile(rf"^(?P<indent>[ \t]*){re.escape(BEGIN_MARK)}\n.*?^[ \t]*{re.escape(END_MARK)}", re.S | re.M)
+
+    def repl(m: re.Match) -> str:
+        indent = m.group("indent")
+        return f"{indent}{BEGIN_MARK}\n{team_options_block(cfg, indent)}\n{indent}{END_MARK}"
+
+    new, n = pattern.subn(repl, text)
+    if n == 0:
+        raise SystemExit("이슈 템플릿에서 팀 옵션 마커를 찾지 못했습니다")
+    return new
+
+
+def render_all(cfg: dict) -> dict[Path, str]:
+    gh = ROOT / ".github"
+    out = {
+        gh / "CODEOWNERS": gen_codeowners(cfg),
+        gh / "labeler.yml": gen_labeler(cfg),
+        gh / "labels.json": gen_labels(cfg),
+        gh / "teams.json": gen_teams_json(cfg),
+        gh / "release.yml": gen_release(cfg),
+    }
+    for form in ISSUE_FORMS:
+        out[form] = update_issue_form(form.read_text(encoding="utf-8"), cfg)
+    return out
+
+
+# ── 명령 ──────────────────────────────────────────────────────
+
+
+def cmd_sync(cfg: dict) -> int:
+    for path, content in render_all(cfg).items():
+        if not path.exists() or path.read_text(encoding="utf-8") != content:
+            path.write_text(content, encoding="utf-8")
+            print(f"갱신: {path.relative_to(ROOT)}")
+    for team in cfg["teams"]:
+        for p in team["paths"]:
+            d = ROOT / p
+            if not d.exists():
+                d.mkdir(parents=True)
+                (d / ".gitkeep").touch()
+                print(f"폴더 생성: {p}")
+    if cfg["org"] == "CHANGE_ME":
+        print("⚠️  config/teams.yml 의 org 를 실제 Organization 이름으로 바꾸세요.")
+    return 0
+
+
+def cmd_check(cfg: dict) -> int:
+    stale = [
+        str(p.relative_to(ROOT))
+        for p, c in render_all(cfg).items()
+        if not p.exists() or p.read_text(encoding="utf-8") != c
+    ]
+    if stale:
+        print("다음 파일이 config/teams.yml 과 동기화되지 않았습니다:")
+        for s in stale:
+            print(f"  - {s}")
+        print("→ python3 scripts/teams.py sync 실행 후 커밋하세요.")
+        return 1
+    print("팀 설정 동기화 OK")
+    return 0
+
+
+# 이 경로가 바뀌면 전체 빌드/테스트
+FULL_BUILD_PREFIXES = (".devcontainer/", "scripts/", ".github/workflows/ci.yml", "requirements-dev.txt")
+
+
+def cmd_changed(cfg: dict) -> int:
+    """stdin 의 변경 파일 목록 → GITHUB_OUTPUT 형식(key=value)."""
+    files = [line.strip() for line in sys.stdin if line.strip()]
+    teams: list[str] = []
+    team_paths: list[str] = []
+    full = False
+    for f in files:
+        owner = next((t for t in cfg["teams"] for p in t["paths"] if f.startswith(p)), None)
+        if owner:
+            if owner["id"] not in teams:
+                teams.append(owner["id"])
+            team_paths += [p.rstrip("/") for p in owner["paths"] if f.startswith(p) and p.startswith("src/")]
+        elif f.startswith("src/") or f.startswith(FULL_BUILD_PREFIXES):
+            full = True
+    print(f"teams={' '.join(teams)}")
+    print(f"full={'true' if full else 'false'}")
+    print(f"ros_paths={' '.join(sorted(set(team_paths)))}")
+    print(f"ros={'true' if (full or team_paths) else 'false'}")
+    print(f"firmware={'true' if full or any(f.startswith('firmware/') for f in files) else 'false'}")
+    return 0
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("command", choices=["sync", "check", "changed", "list"])
+    args = parser.parse_args()
+    cfg = load_config()
+    if args.command == "list":
+        print("\n".join(t["id"] for t in cfg["teams"]))
+        return 0
+    return {"sync": cmd_sync, "check": cmd_check, "changed": cmd_changed}[args.command](cfg)
+
+
+if __name__ == "__main__":
+    sys.exit(main())

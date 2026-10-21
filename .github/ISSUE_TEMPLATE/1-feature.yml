@@ -1,0 +1,56 @@
+name: "✨ 기능 개발"
+description: 새 기능/작업을 등록합니다. 모든 작업은 이슈부터 시작합니다.
+title: "[기능] "
+labels: ["type:feature"]
+body:
+  - type: dropdown
+    id: team
+    attributes:
+      label: 담당 팀
+      description: 선택한 팀 라벨이 자동으로 붙고 프로젝트 보드에 등록됩니다.
+      options:
+        # BEGIN TEAM OPTIONS
+        - camera (카메라)
+        - gps (GPS)
+        - lidar (라이다)
+        - control (제어)
+        - shared (공용/여러 팀)
+        # END TEAM OPTIONS
+    validations:
+      required: true
+  - type: textarea
+    id: goal
+    attributes:
+      label: 목표
+      description: 무엇을, 왜 만드나요?
+      placeholder: 예) 카메라 이미지에서 차선 중심 오프셋을 계산해 /lane_info 토픽으로 발행
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: 완료 조건
+      description: 무엇이 되면 "끝"인가요? (체크리스트 권장)
+      value: |
+        - [ ]
+        - [ ] 테스트 추가 / 통과
+    validations:
+      required: true
+  - type: textarea
+    id: interfaces
+    attributes:
+      label: 사용/변경하는 인터페이스 (토픽·메시지)
+      description: 다른 팀과 주고받는 토픽, 메시지 타입. 메시지 정의 변경이 필요하면 "인터페이스 변경" 이슈를 따로 만드세요.
+      placeholder: "구독: /camera/image_raw (sensor_msgs/Image) / 발행: /lane_info (anjabom_interfaces/LaneInfo)"
+  - type: dropdown
+    id: size
+    attributes:
+      label: 예상 기간
+      description: 3일을 넘으면 이슈를 쪼개 주세요 (작게, 자주 병합).
+      options:
+        - 반나절 이하
+        - 1일
+        - 2~3일
+        - 3일 초과 (쪼개기 권장)
+    validations:
+      required: true

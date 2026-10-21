@@ -1,0 +1,36 @@
+# 자동 생성 파일 - 직접 수정하지 말고 config/teams.yml 수정 후 `python3 scripts/teams.py sync` 실행
+
+"team:camera":
+  - any:
+      - changed-files:
+          - any-glob-to-any-file:
+              - "src/camera/**"
+      - head-branch: ["^camera/"]
+"team:gps":
+  - any:
+      - changed-files:
+          - any-glob-to-any-file:
+              - "src/gps/**"
+      - head-branch: ["^gps/"]
+"team:lidar":
+  - any:
+      - changed-files:
+          - any-glob-to-any-file:
+              - "src/lidar/**"
+      - head-branch: ["^lidar/"]
+"team:control":
+  - any:
+      - changed-files:
+          - any-glob-to-any-file:
+              - "src/control/**"
+              - "firmware/**"
+      - head-branch: ["^control/"]
+"area:shared":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "src/interfaces/**"
+          - "src/bringup/**"
+"type:interface":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "src/interfaces/**"

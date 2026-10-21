@@ -1,0 +1,19 @@
+# 자동 생성 파일 - 직접 수정하지 말고 config/teams.yml 수정 후 `python3 scripts/teams.py sync` 실행
+#
+# 마지막에 매칭되는 규칙이 우선한다.
+
+* @CHANGE_ME/maintainers
+
+# 팀별 담당 영역
+/src/camera/ @CHANGE_ME/team-camera
+/src/gps/ @CHANGE_ME/team-gps
+/src/lidar/ @CHANGE_ME/team-lidar
+/src/control/ @CHANGE_ME/team-control
+/firmware/ @CHANGE_ME/team-control
+
+# 공용 영역
+/src/interfaces/ @CHANGE_ME/leads
+/src/bringup/ @CHANGE_ME/maintainers
+/config/ @CHANGE_ME/maintainers
+/.github/ @CHANGE_ME/maintainers
+/.devcontainer/ @CHANGE_ME/maintainers

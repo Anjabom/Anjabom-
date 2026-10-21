@@ -1,0 +1,8 @@
+# GitHub Actions 버전 자동 업데이트 PR
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    labels: [type:chore]
