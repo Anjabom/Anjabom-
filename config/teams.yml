@@ -9,7 +9,7 @@
 # ─────────────────────────────────────────────────────────────
 
 # GitHub Organization 이름 (예: anjabom-autonomous). docs/ORG_SETUP.md 참고
-org: CHANGE_ME
+org: MAD2027
 
 # 공용 영역(인터페이스, 통합 런치, CI 설정 등)을 책임지는 GitHub 팀 slug
 maintainers_team: maintainers   # 각 팀 리더 + 프로젝트 관리자

@@ -2,7 +2,7 @@
   // 기본: 팀 공용 이미지(GHCR)를 받아 사용 → 본체 노트북과 동일한 환경.
   // 이미지 이름은 config/teams.yml 의 org 로부터 scripts/teams.py sync 가 채운다.
   "name": "anjabom ROS2 (공용 이미지)",
-  "image": "ghcr.io/change_me/anjabom-dev:humble",
+  "image": "ghcr.io/mad2027/anjabom-dev:humble",
   "remoteUser": "ubuntu",
   "workspaceMount": "source=${localWorkspaceFolder},target=/ws,type=bind",
   "workspaceFolder": "/ws",

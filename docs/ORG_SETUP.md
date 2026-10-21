@@ -3,14 +3,14 @@
 > 이 문서는 **처음 한 번** 관리자가 GitHub 웹에서 해야 하는 설정입니다. 전체 흐름은 [GUIDE.md](GUIDE.md) 를 먼저 보세요.
 > 코드(워크플로, 템플릿, CODEOWNERS 등)는 저장소에 이미 들어 있고, 여기서는 GitHub 설정 화면에서만 할 수 있는 일을 다룹니다.
 
-## 0. 현재 상태 (조사 결과, 2026-10-21)
+## 0. 현재 상태 (2026-10-21 기준)
 
 | 항목 | 상태 | 해야 할 일 |
 |---|---|---|
-| 계정 | `Anjabom` **개인 계정** | Organization 생성 (1단계) |
-| 소속 Organization / 팀 | 없음 | 팀 생성 (3단계) |
-| 저장소 | `Anjabom/Anjabom-` (public, 커밋 없음) | Organization 으로 이전 (2단계) |
-| 협업자 | `Anjabom` 1명 (admin) | 팀원 초대 (3단계) |
+| Organization | ✅ `MAD2027` 생성됨 | - |
+| 저장소 | ✅ `MAD2027/MAD2027` (public) 로 이전됨 | 옛 주소로 받은 팀원은 `git remote set-url origin https://github.com/MAD2027/MAD2027.git` |
+| `config/teams.yml` 의 `org` | ✅ `MAD2027` 로 설정 (PR #1 에 포함) | - |
+| 팀 (`maintainers`, `leads`, `team-*`) | 없음 | 팀원 초대와 팀 생성 (3단계) |
 | 브랜치 보호 | 없음 | 규칙 설정 (5단계) |
 
 ## 1. Organization 만들기 (무료)
@@ -57,6 +57,8 @@
 > 자세한 내용은 [TEAM_GUIDE.md](TEAM_GUIDE.md#팀-구성-변경하기) 를 참고하세요.
 
 ## 4. 저장소에 Organization 이름 반영
+
+> ✅ `MAD2027` 로 이미 반영했습니다 (PR #1). Organization 이름을 바꾸게 되면 아래 절차를 따릅니다.
 
 ```bash
 # config/teams.yml 의 org: CHANGE_ME → 실제 이름 (예: anjabom-auto)
