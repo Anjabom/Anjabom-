@@ -11,7 +11,7 @@ repos:
       - id: check-yaml
         exclude: ^\.devcontainer/
       - id: check-json
-        exclude: ^\.devcontainer/devcontainer\.json$
+        exclude: ^\.devcontainer/(.+/)?devcontainer\.json$  # JSONC (주석 허용)
       - id: check-xml
       - id: check-merge-conflict
       - id: check-added-large-files

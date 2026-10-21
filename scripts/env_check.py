@@ -49,7 +49,9 @@ def collect() -> dict:
     mem = re.search(r"^MemTotal:\s*(\d+)", read("/proc/meminfo"), re.M)
     gpu = run(["nvidia-smi", "--query-gpu=name,driver_version", "--format=csv,noheader"])
     if not gpu:
-        gpu = "; ".join(line.split(": ", 1)[-1] for line in run(["lspci"]).splitlines() if "VGA" in line or "3D" in line)
+        gpu = "; ".join(
+            line.split(": ", 1)[-1] for line in run(["lspci"]).splitlines() if "VGA" in line or "3D" in line
+        )
     os_release = dict(
         line.split("=", 1) for line in read("/etc/os-release").splitlines() if "=" in line and not line.startswith("#")
     )
@@ -144,7 +146,10 @@ def check(target: dict, cur: dict) -> int:
         print(f"       {', '.join(limit)}")
     if ch["cpu_cores"] and th["cpu_cores"] and ch["cpu_cores"] < th["cpu_cores"]:
         warnings += 1
-        print("  ⚠️  이 PC 가 본체보다 느립니다. 여기서 느린 것은 본체에서 괜찮을 수 있으니 성능 판단은 본체 실기 테스트로.")
+        print(
+            "  ⚠️  이 PC 가 본체보다 느립니다. 여기서 느린 것은 본체에서 괜찮을 수 있으니"
+            " 성능 판단은 본체 실기 테스트로."
+        )
     if ("없음" in th["gpu"]) != ("없음" in ch["gpu"]):
         warnings += 1
         print("  ⚠️  GPU 유무가 다릅니다. GPU 를 쓰는 코드는 본체 실기 테스트(vehicle-test)로 확인하세요.")
@@ -175,7 +180,10 @@ def main() -> int:
 
     target = yaml.safe_load(TARGET.read_text(encoding="utf-8")) if TARGET.exists() else None
     if not target or not target.get("hardware"):
-        print("기준 환경이 아직 기록되지 않았습니다. 본체 노트북에서 `python3 scripts/env_check.py --capture` 를 실행하세요.")
+        print(
+            "기준 환경이 아직 기록되지 않았습니다."
+            " 본체 노트북에서 `python3 scripts/env_check.py --capture` 를 실행하세요."
+        )
         return 0
     return check(target, current)
 
