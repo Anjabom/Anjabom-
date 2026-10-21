@@ -1,0 +1,51 @@
+# 커밋 전에 자동 검사. 설치: ./scripts/setup.sh (pre-commit install)
+# CI 에서도 같은 설정으로 실행되므로 로컬에서 통과하면 CI 에서도 통과한다.
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+        args: [--fix=lf]
+      - id: check-yaml
+        exclude: ^\.devcontainer/
+      - id: check-json
+        exclude: ^\.devcontainer/(.+/)?devcontainer\.json$  # JSONC (주석 허용)
+      - id: check-xml
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: [--maxkb=1024]
+      - id: detect-private-key
+      - id: no-commit-to-branch
+        args: [--branch, main]
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.4
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: v19.1.6
+    hooks:
+      - id: clang-format
+        types_or: [c, c++]
+        files: \.(c|cc|cpp|h|hpp|ino)$
+
+  - repo: local
+    hooks:
+      - id: teams-sync
+        name: config/teams.yml 동기화 검사
+        entry: python3 scripts/teams.py check
+        language: python
+        additional_dependencies: [pyyaml==6.0.2]
+        pass_filenames: false
+        files: (^(config/teams\.yml|\.github/|\.devcontainer/|scripts/teams\.py)|(^|/)(AGENTS|CLAUDE)\.md$)
+      # AI 도구 등이 API 키/토큰을 코드에 넣는 사고 방지 (GitHub Push protection 과 이중 방어)
+      - id: no-secrets
+        name: API 키/토큰 커밋 차단
+        language: pygrep
+        entry: '(sk-ant-[A-Za-z0-9_-]{20,}|sk-(proj-)?[A-Za-z0-9_-]{32,}|xai-[A-Za-z0-9]{32,}|ntn_[A-Za-z0-9]{30,}|secret_[A-Za-z0-9]{40,}|gh[pousr]_[A-Za-z0-9]{36,}|github_pat_[A-Za-z0-9_]{60,}|AKIA[0-9A-Z]{16})'
+        exclude: ^\.pre-commit-config\.yaml$

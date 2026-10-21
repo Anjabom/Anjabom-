@@ -1,0 +1,48 @@
+name: "🔌 인터페이스(메시지) 변경 요청"
+description: 팀 간에 주고받는 메시지/토픽 정의를 추가하거나 바꿉니다. 모든 팀에 알림이 갑니다.
+title: "[인터페이스] "
+labels: ["type:interface", "area:shared"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        `src/interfaces/` 의 메시지는 팀 간 **계약**입니다. 합의 없이 바꾸면 다른 팀 코드가 깨집니다.
+        이 이슈에서 영향 받는 팀의 동의를 받은 뒤 PR 을 올려 주세요. (절차: docs/TEAM_GUIDE.md)
+  - type: dropdown
+    id: team
+    attributes:
+      label: 요청 팀
+      options:
+        # BEGIN TEAM OPTIONS
+        - camera (카메라)
+        - gps (GPS)
+        - lidar (라이다)
+        - control (제어)
+        - shared (공용/여러 팀)
+        # END TEAM OPTIONS
+    validations:
+      required: true
+  - type: textarea
+    id: change
+    attributes:
+      label: 변경 내용
+      description: 추가/변경/삭제할 메시지와 필드
+      render: text
+      placeholder: |
+        anjabom_interfaces/msg/LaneInfo.msg
+        + float32 curvature   # 차선 곡률 [1/m]
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: 이유
+    validations:
+      required: true
+  - type: checkboxes
+    id: impact
+    attributes:
+      label: 영향 확인
+      options:
+        - label: 기존 필드를 삭제/이름변경/타입변경 하지 않는다 (하위 호환)
+        - label: 이 메시지를 사용하는 팀을 확인했다 (`grep -r LaneInfo src/`)

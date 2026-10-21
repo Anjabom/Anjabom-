@@ -1,0 +1,207 @@
+# PR/main 마다 실행되는 통합 검증.
+# 변경된 팀 폴더의 패키지(+그에 의존하는 패키지)만 빌드·테스트해서 팀끼리 CI 를 기다리지 않게 한다.
+# 공용 영역(src/interfaces, src/bringup, scripts, .devcontainer)이 바뀌면 전체를 검사한다.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      full:
+        type: boolean
+        default: true
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+env:
+  ROS_DISTRO: humble
+  ARDUINO_CLI_VERSION: 1.1.1
+
+jobs:
+  lint:
+    name: 코드 스타일 / 팀 설정 동기화
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.10"
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
+      - run: pip install -r requirements-dev.txt
+      - run: pre-commit run --all-files --show-diff-on-failure
+        env:
+          SKIP: no-commit-to-branch
+
+  changes:
+    name: 변경 범위 분석
+    runs-on: ubuntu-22.04
+    outputs:
+      teams: ${{ steps.scope.outputs.teams }}
+      full: ${{ steps.scope.outputs.full }}
+      ros: ${{ steps.scope.outputs.ros }}
+      ros_paths: ${{ steps.scope.outputs.ros_paths }}
+      firmware: ${{ steps.scope.outputs.firmware }}
+      devcontainer: ${{ steps.scope.outputs.devcontainer }}
+      image: ${{ steps.image.outputs.image }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - run: pip install pyyaml==6.0.2
+      - id: scope
+        env:
+          EVENT: ${{ github.event_name }}
+          FORCE_FULL: ${{ inputs.full }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+        run: |
+          if [ "$EVENT" = pull_request ]; then
+            files=$(git diff --name-only "$PR_BASE"...HEAD)
+          elif [ "$EVENT" = push ] && [ -n "$PUSH_BEFORE" ] && git cat-file -e "$PUSH_BEFORE^{commit}" 2>/dev/null; then
+            files=$(git diff --name-only "$PUSH_BEFORE" HEAD)
+          else
+            files="scripts/full-build"  # 수동/야간 실행 → 전체
+          fi
+          [ "$FORCE_FULL" = true ] && files="scripts/full-build"
+          scope=$(echo "$files" | python3 scripts/teams.py changed)
+          echo "$scope" | tee -a "$GITHUB_OUTPUT"
+          if echo "$files" | grep -qE '^(\.devcontainer/|\.dockerignore|requirements(-dev)?\.txt)'; then
+            echo "devcontainer=true" >> "$GITHUB_OUTPUT"
+          fi
+          {
+            echo "### 변경 범위"
+            echo '```'
+            echo "$scope"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - id: image
+        name: 공용 개발 이미지 확인
+        run: |
+          # 팀원들이 쓰는 공용 이미지(GHCR)가 있으면 CI 도 같은 이미지로 검사한다.
+          img="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/anjabom-dev:humble"
+          if docker manifest inspect "$img" >/dev/null 2>&1; then
+            echo "image=$img" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::공용 이미지가 아직 없거나 비공개라 기본 ROS 이미지로 검사합니다 ($img)"
+            echo "image=ros:humble-ros-base-jammy" >> "$GITHUB_OUTPUT"
+          fi
+
+  ros:
+    name: ROS2 빌드 / 테스트
+    needs: changes
+    if: needs.changes.outputs.ros == 'true'
+    runs-on: ubuntu-22.04
+    container:
+      image: ${{ needs.changes.outputs.image }}
+      options: --user root
+    defaults:
+      run:
+        shell: bash
+    env:
+      FULL: ${{ needs.changes.outputs.full }}
+      ROS_PATHS: ${{ needs.changes.outputs.ros_paths }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: 의존성 설치 (rosdep)
+        run: |
+          apt-get update
+          rosdep update --rosdistro "$ROS_DISTRO"
+          rosdep install --from-paths src --ignore-src -y --rosdistro "$ROS_DISTRO"
+      - name: 대상 패키지 선택
+        id: select
+        run: |
+          # shellcheck disable=SC1090
+          source "/opt/ros/$ROS_DISTRO/setup.bash"
+          if [ "$FULL" = true ]; then
+            echo "pkgs=" >> "$GITHUB_OUTPUT"; echo "skip=false" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          read -ra paths <<< "$ROS_PATHS"
+          pkgs=$(colcon list --names-only --base-paths "${paths[@]}" | xargs)
+          echo "pkgs=$pkgs" >> "$GITHUB_OUTPUT"
+          [ -z "$pkgs" ] && echo "skip=true" >> "$GITHUB_OUTPUT" || echo "skip=false" >> "$GITHUB_OUTPUT"
+          echo "변경된 패키지: ${pkgs:-없음}"
+      - name: colcon build
+        if: steps.select.outputs.skip == 'false'
+        env:
+          SELECTED: ${{ steps.select.outputs.pkgs }}
+        run: |
+          # shellcheck disable=SC1090
+          source "/opt/ros/$ROS_DISTRO/setup.bash"
+          read -ra pkgs <<< "$SELECTED"
+          sel=()
+          [ ${#pkgs[@]} -gt 0 ] && sel=(--packages-above-and-dependencies "${pkgs[@]}")
+          colcon build --event-handlers console_cohesion+ "${sel[@]}"
+      - name: colcon test
+        if: steps.select.outputs.skip == 'false'
+        env:
+          SELECTED: ${{ steps.select.outputs.pkgs }}
+        run: |
+          # shellcheck disable=SC1090
+          source "/opt/ros/$ROS_DISTRO/setup.bash"
+          read -ra pkgs <<< "$SELECTED"
+          sel=()
+          [ ${#pkgs[@]} -gt 0 ] && sel=(--packages-above "${pkgs[@]}")
+          colcon test --event-handlers console_cohesion+ "${sel[@]}"
+          colcon test-result --verbose
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: colcon-log
+          path: log/
+
+  firmware:
+    name: 아두이노 컴파일
+    needs: changes
+    if: needs.changes.outputs.firmware == 'true'
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: arduino/setup-arduino-cli@v2
+        with:
+          version: ${{ env.ARDUINO_CLI_VERSION }}
+      - run: |
+          status=0
+          arduino-cli core update-index
+          for sketch in firmware/arduino/*/sketch.yaml; do
+            [ -f "$sketch" ] || continue
+            dir=$(dirname "$sketch")
+            echo "::group::$dir"
+            arduino-cli compile "$dir" || status=1   # sketch.yaml 의 default_profile (보드/코어 버전 고정)
+            echo "::endgroup::"
+          done
+          exit $status
+
+  devcontainer:
+    name: 개발 환경 이미지 빌드
+    needs: changes
+    if: needs.changes.outputs.devcontainer == 'true' || inputs.full
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v5
+      - run: docker build -f .devcontainer/Dockerfile --build-arg ROS_DISTRO="$ROS_DISTRO" -t anjabom-dev .
+
+  # 브랜치 보호 규칙에서 "필수 검사"로 지정할 단일 체크. (건너뛴 job 은 통과로 간주)
+  ci-ok:
+    name: CI 통과
+    if: always()
+    needs: [lint, changes, ros, firmware, devcontainer]
+    runs-on: ubuntu-22.04
+    steps:
+      - env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "결과: $RESULTS"
+          for r in $RESULTS; do
+            case "$r" in success|skipped) ;; *) exit 1 ;; esac
+          done

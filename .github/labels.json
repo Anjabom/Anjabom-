@@ -1,0 +1,127 @@
+[
+  {
+    "name": "team:camera",
+    "color": "1d76db",
+    "description": "카메라 팀 - 카메라 기반 인지 (차선/객체/신호 인식)"
+  },
+  {
+    "name": "team:gps",
+    "color": "0e8a16",
+    "description": "GPS 팀 - GPS/IMU 기반 측위 및 경로"
+  },
+  {
+    "name": "team:lidar",
+    "color": "5319e7",
+    "description": "라이다 팀 - 라이다 기반 인지 (장애물/거리)"
+  },
+  {
+    "name": "team:control",
+    "color": "d93f0b",
+    "description": "제어 팀 - 판단/제어 및 아두이노 펌웨어"
+  },
+  {
+    "name": "type:feature",
+    "color": "a2eeef",
+    "description": "새 기능"
+  },
+  {
+    "name": "type:bug",
+    "color": "d73a4a",
+    "description": "버그"
+  },
+  {
+    "name": "type:interface",
+    "color": "fbca04",
+    "description": "팀 간 인터페이스(메시지) 변경"
+  },
+  {
+    "name": "type:chore",
+    "color": "c5def5",
+    "description": "빌드/CI/환경/리팩터링"
+  },
+  {
+    "name": "type:docs",
+    "color": "0075ca",
+    "description": "문서"
+  },
+  {
+    "name": "status:in-progress",
+    "color": "fef2c0",
+    "description": "작업 중"
+  },
+  {
+    "name": "status:blocked",
+    "color": "b60205",
+    "description": "다른 작업/팀을 기다리는 중"
+  },
+  {
+    "name": "status:review-needed",
+    "color": "0052cc",
+    "description": "리뷰 필요"
+  },
+  {
+    "name": "status:stale",
+    "color": "cccccc",
+    "description": "오래 열려 있는 PR - 병합 또는 분할 필요"
+  },
+  {
+    "name": "status:behind-main",
+    "color": "e99695",
+    "description": "main 보다 많이 뒤처짐 - main 병합 필요"
+  },
+  {
+    "name": "priority:high",
+    "color": "b60205",
+    "description": "우선순위 높음"
+  },
+  {
+    "name": "priority:medium",
+    "color": "fbca04",
+    "description": "우선순위 보통"
+  },
+  {
+    "name": "priority:low",
+    "color": "0e8a16",
+    "description": "우선순위 낮음"
+  },
+  {
+    "name": "area:shared",
+    "color": "fbca04",
+    "description": "공용 영역(인터페이스/통합 런치) 변경"
+  },
+  {
+    "name": "ci:nightly-failure",
+    "color": "b60205",
+    "description": "야간 통합 빌드 실패"
+  },
+  {
+    "name": "report:weekly",
+    "color": "bfdadc",
+    "description": "주간 진행 리포트"
+  },
+  {
+    "name": "report:monthly",
+    "color": "bfdadc",
+    "description": "월간 진행 리포트"
+  },
+  {
+    "name": "ai:claude",
+    "color": "d4c5f9",
+    "description": "Claude Code 로 작성/수정"
+  },
+  {
+    "name": "ai:codex",
+    "color": "d4c5f9",
+    "description": "OpenAI Codex 로 작성/수정"
+  },
+  {
+    "name": "ai:grok",
+    "color": "d4c5f9",
+    "description": "Grok 으로 작성/수정"
+  },
+  {
+    "name": "ai:other",
+    "color": "d4c5f9",
+    "description": "기타 AI 도구로 작성/수정"
+  }
+]

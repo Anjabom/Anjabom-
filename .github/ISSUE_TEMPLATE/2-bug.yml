@@ -1,0 +1,47 @@
+name: "🐞 버그"
+description: 버그/오동작을 보고합니다.
+title: "[버그] "
+labels: ["type:bug"]
+body:
+  - type: dropdown
+    id: team
+    attributes:
+      label: 담당(추정) 팀
+      options:
+        # BEGIN TEAM OPTIONS
+        - camera (카메라)
+        - gps (GPS)
+        - lidar (라이다)
+        - control (제어)
+        - shared (공용/여러 팀)
+        # END TEAM OPTIONS
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: 현상
+      description: 어떤 일이 일어났고, 원래 어떻게 되어야 하나요?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 재현 방법
+      placeholder: |
+        1. ros2 launch anjabom_bringup ...
+        2. ...
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: 버전 (커밋 해시 또는 태그)
+      description: "`git rev-parse --short HEAD` 결과"
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: 로그 / 스크린샷
+      render: shell

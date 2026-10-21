@@ -1,0 +1,80 @@
+{
+  "_generated": "자동 생성 파일 - 직접 수정하지 말고 config/teams.yml 수정 후 `python3 scripts/teams.py sync` 실행",
+  "org": "MAD2027",
+  "teams": [
+    {
+      "id": "camera",
+      "name": "카메라",
+      "label": "team:camera",
+      "handle": "@MAD2027/team-camera",
+      "paths": [
+        "src/camera/"
+      ]
+    },
+    {
+      "id": "gps",
+      "name": "GPS",
+      "label": "team:gps",
+      "handle": "@MAD2027/team-gps",
+      "paths": [
+        "src/gps/"
+      ]
+    },
+    {
+      "id": "lidar",
+      "name": "라이다",
+      "label": "team:lidar",
+      "handle": "@MAD2027/team-lidar",
+      "paths": [
+        "src/lidar/"
+      ]
+    },
+    {
+      "id": "control",
+      "name": "제어",
+      "label": "team:control",
+      "handle": "@MAD2027/team-control",
+      "paths": [
+        "src/control/",
+        "firmware/"
+      ]
+    }
+  ],
+  "shared": [
+    {
+      "path": "src/interfaces/",
+      "owners": [
+        "@MAD2027/leads"
+      ],
+      "notify_all_teams": true
+    },
+    {
+      "path": "src/bringup/",
+      "owners": [
+        "@MAD2027/maintainers"
+      ],
+      "notify_all_teams": true
+    },
+    {
+      "path": "config/",
+      "owners": [
+        "@MAD2027/maintainers"
+      ],
+      "notify_all_teams": false
+    },
+    {
+      "path": ".github/",
+      "owners": [
+        "@MAD2027/maintainers"
+      ],
+      "notify_all_teams": false
+    },
+    {
+      "path": ".devcontainer/",
+      "owners": [
+        "@MAD2027/maintainers"
+      ],
+      "notify_all_teams": false
+    }
+  ]
+}

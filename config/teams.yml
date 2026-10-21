@@ -1,0 +1,68 @@
+# ─────────────────────────────────────────────────────────────
+# 팀 구성 단일 진실 공급원 (Single Source of Truth)
+#
+# 팀 추가/삭제/이름 변경은 이 파일만 수정한 뒤
+#   python3 scripts/teams.py sync
+# 를 실행하면 CODEOWNERS, 라벨, 이슈 템플릿, PR 자동 라벨 규칙,
+# 릴리스 노트 분류가 모두 다시 생성된다. (CI가 동기화 여부를 검사함)
+# 자세한 절차: docs/TEAM_GUIDE.md "팀 구성 변경하기"
+# ─────────────────────────────────────────────────────────────
+
+# GitHub Organization 이름 (예: anjabom-autonomous). docs/ORG_SETUP.md 참고
+org: MAD2027
+
+# 공용 영역(인터페이스, 통합 런치, CI 설정 등)을 책임지는 GitHub 팀 slug
+maintainers_team: maintainers   # 각 팀 리더 + 프로젝트 관리자
+leads_team: leads               # 각 팀 리더 (인터페이스 변경 승인)
+
+teams:
+  - id: camera                  # 브랜치 접두사/라벨/폴더에 쓰이는 영문 ID (소문자, 하이픈)
+    name: 카메라                 # 사람이 읽는 이름
+    description: 카메라 기반 인지 (차선/객체/신호 인식)
+    github_team: team-camera    # Organization 안의 GitHub 팀 slug
+    color: "1d76db"
+    paths:
+      - src/camera/
+
+  - id: gps
+    name: GPS
+    description: GPS/IMU 기반 측위 및 경로
+    github_team: team-gps
+    color: "0e8a16"
+    paths:
+      - src/gps/
+
+  - id: lidar
+    name: 라이다
+    description: 라이다 기반 인지 (장애물/거리)
+    github_team: team-lidar
+    color: "5319e7"
+    paths:
+      - src/lidar/
+
+  - id: control
+    name: 제어
+    description: 판단/제어 및 아두이노 펌웨어
+    github_team: team-control
+    color: "d93f0b"
+    paths:
+      - src/control/
+      - firmware/
+
+# 여러 팀이 함께 쓰는 공용 영역. 변경 시 모든 팀에 알림이 간다.
+shared:
+  - path: src/interfaces/       # 팀 간 메시지 정의 (계약)
+    owners: [leads]
+    notify_all_teams: true
+  - path: src/bringup/          # 전체 시스템 통합 런치
+    owners: [maintainers]
+    notify_all_teams: true
+  - path: config/
+    owners: [maintainers]
+    notify_all_teams: false
+  - path: .github/
+    owners: [maintainers]
+    notify_all_teams: false
+  - path: .devcontainer/
+    owners: [maintainers]
+    notify_all_teams: false

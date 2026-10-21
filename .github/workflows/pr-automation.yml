@@ -1,0 +1,107 @@
+# PR 자동화: 팀 라벨 부여, 규칙 안내, 공용 영역 변경 시 전체 팀 알림, 프로젝트 보드 등록.
+# pull_request_target 은 base(main) 의 코드만 실행하므로 PR 코드를 checkout 하지 않는다.
+name: PR 자동화
+
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize, edited, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  label:
+    name: 팀 라벨
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/labeler@v5
+        with:
+          sync-labels: false
+
+  guide:
+    name: 규칙 안내
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v5   # base 브랜치(.github/teams.json 읽기용)
+      - uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+            const cfg = JSON.parse(fs.readFileSync('.github/teams.json', 'utf8'));
+            const pr = context.payload.pull_request;
+            const ids = cfg.teams.map(t => t.id).concat(['shared', 'hotfix', 'docs', 'chore']);
+            const problems = [];
+
+            const branchRe = new RegExp(`^(${ids.join('|')})/\\d+-[a-z0-9._-]+$`);
+            // 브랜치 이름을 바꿀 수 없는 클라우드 AI 에이전트의 기본 이름은 허용 (팀 라벨은 변경 경로로 붙음)
+            const aiBranch = pr.head.ref.match(/^(claude|codex|grok)\//);
+            if (!branchRe.test(pr.head.ref) && !aiBranch) {
+              problems.push(`브랜치 이름 \`${pr.head.ref}\` 이 규칙 \`<팀>/<이슈번호>-<설명>\` 과 다릅니다. (팀: ${ids.map(i => '`' + i + '`').join(', ')})`);
+            }
+            if (!/(close[sd]?|fix(e[sd])?|resolve[sd]?)\s+#\d+/i.test(pr.body || '')) {
+              problems.push('PR 본문에 `Closes #이슈번호` 가 없습니다. 이슈와 연결해야 보드에서 진행 상황이 추적됩니다.');
+            }
+            // AI 도구 사용 감지: PR 템플릿 체크, AI 기본 브랜치 이름, 커밋의 Co-Authored-By 트레일러
+            const body = pr.body || '';
+            const ai = new Set();
+            const checked = name => new RegExp(`^\\s*-\\s*\\[x\\]\\s*${name}`, 'mi').test(body);
+            if (checked('Claude')) ai.add('claude');
+            if (checked('Codex')) ai.add('codex');
+            if (checked('Grok')) ai.add('grok');
+            if (checked('기타')) ai.add('other');
+            if (aiBranch) ai.add(aiBranch[1]);
+            const commits = await github.paginate(github.rest.pulls.listCommits, { ...context.repo, pull_number: pr.number });
+            for (const c of commits) {
+              const msg = c.commit.message;
+              if (/co-authored-by:.*(claude|anthropic)/i.test(msg)) ai.add('claude');
+              if (/co-authored-by:.*(codex|openai)/i.test(msg)) ai.add('codex');
+              if (/co-authored-by:.*(grok|x\.ai)/i.test(msg)) ai.add('grok');
+            }
+            if (ai.size) {
+              await github.rest.issues.addLabels({ ...context.repo, issue_number: pr.number, labels: [...ai].map(a => `ai:${a}`) });
+              if (!checked('\\(AI 사용 시\\) AI 가 만든 코드를 직접 읽고')) {
+                problems.push('AI 도구를 사용한 PR 입니다. 템플릿의 "AI 가 만든 코드를 직접 읽고 이해했으며..." 항목을 확인해 주세요. (책임은 작성자에게 있습니다)');
+              }
+            }
+
+            const changed = pr.additions + pr.deletions;
+            if (changed > 400) {
+              problems.push(`변경량이 ${changed}줄입니다. 400줄 이하로 나누면 리뷰와 병합이 빨라집니다.`);
+            }
+
+            const marker = '<!-- pr-guide -->';
+            const comments = await github.paginate(github.rest.issues.listComments, { ...context.repo, issue_number: pr.number });
+            const prev = comments.find(c => c.body.includes(marker));
+            const guide = problems.length
+              ? `${marker}\n### 📋 PR 규칙 확인\n${problems.map(p => `- ⚠️ ${p}`).join('\n')}\n\n_docs/CONTRIBUTING.md 참고. 수정하면 이 댓글이 자동 갱신됩니다._`
+              : `${marker}\n### 📋 PR 규칙 확인\n- ✅ 모든 규칙을 지켰습니다.`;
+            if (prev) {
+              await github.rest.issues.updateComment({ ...context.repo, comment_id: prev.id, body: guide });
+            } else if (problems.length) {
+              await github.rest.issues.createComment({ ...context.repo, issue_number: pr.number, body: guide });
+            }
+
+            // 공용 영역 변경 → 모든 팀에 한 번 알림
+            const files = await github.paginate(github.rest.pulls.listFiles, { ...context.repo, pull_number: pr.number });
+            const notifyPaths = cfg.shared.filter(s => s.notify_all_teams).map(s => s.path);
+            const touched = notifyPaths.filter(p => files.some(f => f.filename.startsWith(p)));
+            const sharedMarker = '<!-- shared-notify -->';
+            if (touched.length && !comments.some(c => c.body.includes(sharedMarker))) {
+              await github.rest.issues.createComment({
+                ...context.repo, issue_number: pr.number,
+                body: `${sharedMarker}\n### 🔌 공용 영역 변경 알림\n변경 경로: ${touched.map(p => '`' + p + '`').join(', ')}\n\n` +
+                      `${cfg.teams.map(t => t.handle).join(' ')}\n각 팀은 자기 코드에 영향이 있는지 확인 후 리뷰에 의견을 남겨 주세요.`,
+              });
+            }
+
+  project:
+    name: 프로젝트 보드 등록
+    if: vars.PROJECT_URL != ''
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/add-to-project@v1.0.2
+        with:
+          project-url: ${{ vars.PROJECT_URL }}
+          github-token: ${{ secrets.PROJECT_TOKEN }}

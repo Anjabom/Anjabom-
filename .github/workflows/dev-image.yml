@@ -1,0 +1,66 @@
+# 공용 개발 이미지(= 본체 노트북 기준 환경)를 빌드해 GHCR 에 올린다.
+# 모든 팀원(우분투/윈도우 WSL)·본체 노트북·CI 가 이 이미지를 받아 쓰므로 환경이 완전히 같아진다.
+# 의존성(package.xml, requirements*.txt)이나 Dockerfile 이 main 에 병합될 때만 다시 빌드한다.
+name: 공용 개발 이미지
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .devcontainer/Dockerfile
+      - .dockerignore
+      - requirements.txt
+      - requirements-dev.txt
+      - "src/**/package.xml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: dev-image
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v5
+      - id: meta
+        run: |
+          image="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/anjabom-dev"
+          echo "image=$image" >> "$GITHUB_OUTPUT"
+          echo "stamp=humble-$(date -u +%Y%m%d)-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          pip install -q pyyaml==6.0.2
+          expected=$(python3 scripts/teams.py image)
+          if [ "$expected" != "$image:humble" ]; then
+            echo "::warning::devcontainer.json 의 이미지($expected)와 올릴 이미지($image:humble)가 다릅니다. config/teams.yml 의 org 를 확인하세요."
+          fi
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: .devcontainer/Dockerfile
+          push: true
+          tags: |
+            ${{ steps.meta.outputs.image }}:humble
+            ${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.stamp }}
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.description=anjabom ROS2 Humble 공용 개발 환경
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - run: |
+          {
+            echo "### 공용 개발 이미지 갱신"
+            echo "- \`${{ steps.meta.outputs.image }}:humble\` (최신)"
+            echo "- \`${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.stamp }}\` (이 시점 고정)"
+            echo ""
+            echo "팀원은 VS Code 에서 **Rebuild Container** 또는 \`./scripts/dev.sh --pull\` 로 받으세요."
+          } >> "$GITHUB_STEP_SUMMARY"

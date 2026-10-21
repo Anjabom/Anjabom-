@@ -1,0 +1,33 @@
+# 이슈 자동화: 이슈 양식에서 고른 팀으로 라벨을 붙이고 프로젝트 보드에 등록한다.
+name: 이슈 자동화
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  issues: write
+
+jobs:
+  team-label:
+    name: 팀 라벨
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/github-script@v8
+        with:
+          script: |
+            // 이슈 양식의 "### ...팀" 항목 값: "camera (카메라)" → camera
+            const m = (context.payload.issue.body || '').match(/^###[^\n]*팀\s*\n+\s*([a-z0-9-]+)\s*\(/m);
+            if (!m) return;
+            const label = m[1] === 'shared' ? 'area:shared' : `team:${m[1]}`;
+            await github.rest.issues.addLabels({ ...context.repo, issue_number: context.payload.issue.number, labels: [label] });
+
+  project:
+    name: 프로젝트 보드 등록
+    if: vars.PROJECT_URL != ''
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/add-to-project@v1.0.2
+        with:
+          project-url: ${{ vars.PROJECT_URL }}
+          github-token: ${{ secrets.PROJECT_TOKEN }}
