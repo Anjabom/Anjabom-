@@ -49,7 +49,7 @@ jobs:
             core.notice(`릴리스 생성: ${data.html_url}`);
             core.setOutput('tag', tag);
       # 이 버전과 짝이 되는 공용 개발 이미지에도 같은 태그를 붙여, 나중에 그대로 재현할 수 있게 한다.
-      - uses: docker/login-action@v3
+      - uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
